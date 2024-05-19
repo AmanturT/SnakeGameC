@@ -3,13 +3,15 @@
 
 #include "SnakeBase.h"
 #include "SnakeElementBase.h"
-// Sets default values
+#include "Interactable.h"
+
+// Sets dault values
 ASnakeBase::ASnakeBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ElementSize = 100.f;
-	MovementSpeed = 10;
+
 	
 }
 
@@ -18,7 +20,7 @@ void ASnakeBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorTickInterval(MovementSpeed);
-	AddSnakeElement(7);
+	AddSnakeElement(2);
 }
 
 // Called every frame
@@ -38,9 +40,12 @@ void ASnakeBase::AddSnakeElement(int ElementsNum)
 		ASnakeElementBase* NewSnakeElem = GetWorld()->SpawnActor<ASnakeElementBase>(SnakeElementBase,NewTransform);
 		
 		int32 ElemIndex = SnakeElements.Add(NewSnakeElem);
+
+		NewSnakeElem->SnakeOwner = this;
 		if (ElemIndex == 0)
 		{
 			NewSnakeElem->SetFirstElementType();
+			
 		}
 	}
 	
@@ -50,25 +55,26 @@ void ASnakeBase::Move()
 {
 	
 	FVector MovementVector(ForceInitToZero);
-	MovementSpeed = ElementSize;
+
 
 	switch (LastMoveDirection)
 	{
 	case EMovementDirection::UP:
-		MovementVector.X += MovementSpeed;
+		MovementVector.X += ElementSize;
 		break;
 	case EMovementDirection::DOWN:
-		MovementVector.X -= MovementSpeed;
+		MovementVector.X -= ElementSize;
 		break;
 	case EMovementDirection::LEFT:
-		MovementVector.Y += MovementSpeed;
+		MovementVector.Y += ElementSize;
 		break;
 	case EMovementDirection::RIGHT:
-		MovementVector.Y -= MovementSpeed;
+		MovementVector.Y -= ElementSize;
 		break;
 	}
 
 	//AddActorWorldOffset(MovementVector);
+	SnakeElements[0]->ToggleCollision();
 
 	for (int i = SnakeElements.Num() - 1; i > 0; i--)
 	{
@@ -80,5 +86,36 @@ void ASnakeBase::Move()
 	}
 
 	SnakeElements[0]->AddActorWorldOffset(MovementVector);
+	SnakeElements[0]->ToggleCollision();
+}
+
+void ASnakeBase::SnakeElementOverlapped(ASnakeElementBase* OverlappedElement, AActor* Other)
+{
+	if (IsValid(OverlappedElement))
+	{
+		int32 ElemIndex;
+		SnakeElements.Find(OverlappedElement, ElemIndex);
+		bool bIsFirst = ElemIndex == 0;
+		IInteractable* InteractableInterface = Cast<IInteractable>(Other);
+		if (InteractableInterface)
+		{
+			InteractableInterface->Interact(this,bIsFirst);
+			
+		}
+	}
+}
+
+void ASnakeBase::RemoveSnakeElement(int NumElementsToRemove)
+{
+	if (SnakeElements.Num() >= NumElementsToRemove)
+	{
+		
+		for (int i = 0; i < NumElementsToRemove; ++i)
+		{
+			ASnakeElementBase* LastElement = SnakeElements.Last();
+			SnakeElements.RemoveAt(SnakeElements.Num() - 1);
+			LastElement->Destroy();
+		}
+	}
 }
 

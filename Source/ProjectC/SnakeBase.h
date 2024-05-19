@@ -22,12 +22,12 @@ UCLASS()
 class PROJECTC_API ASnakeBase : public AActor
 {
 	GENERATED_BODY()
-	
-	
-public:	
+
+
+public:
 	// Sets default values for this actor's properties
 	ASnakeBase();
-	
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ASnakeElementBase> SnakeElementBase;
 
@@ -47,11 +47,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void AddSnakeElement(int ElementsNum = 1);
 
 	void Move();
+	UFUNCTION()
+	void SnakeElementOverlapped(ASnakeElementBase* OverlappedElement, AActor* Other);
+
+	void RemoveSnakeElement(int NumElementsToRemove);
 };
