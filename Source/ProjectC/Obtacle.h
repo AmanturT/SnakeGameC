@@ -4,23 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "Interactable.h"
-#include "Food.generated.h"
+#include "Obtacle.generated.h"
 
 UCLASS()
-class PROJECTC_API AFood : public AActor, public IInteractable
+class PROJECTC_API AObtacle : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditDefaultsOnly)
-	int32 id;
-	UPROPERTY()
-	int32 points;
-
 public:	
 	// Sets default values for this actor's properties
-	AFood();
+	AObtacle();
 
 protected:
 	// Called when the game starts or when spawned
@@ -31,8 +25,4 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Interact(AActor* Interactor, bool bIsHead) override;
-
-	
-
-	void MoveFood();
 };

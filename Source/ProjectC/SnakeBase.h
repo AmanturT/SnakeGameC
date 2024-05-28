@@ -7,7 +7,7 @@
 #include "SnakeBase.generated.h"
 
 class ASnakeElementBase;
-
+class USnakeElementsShow;
 UENUM()
 enum class EMovementDirection
 {
@@ -43,6 +43,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float MovementSpeed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	USnakeElementsShow* SnakeElementsShow;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -58,4 +61,6 @@ public:
 	void SnakeElementOverlapped(ASnakeElementBase* OverlappedElement, AActor* Other);
 
 	void RemoveSnakeElement(int NumElementsToRemove);
+
+	
 };

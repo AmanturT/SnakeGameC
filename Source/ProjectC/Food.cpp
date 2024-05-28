@@ -3,6 +3,7 @@
 
 #include "Food.h"
 #include "SnakeBase.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AFood::AFood()
@@ -37,12 +38,13 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 			{
 				case 1:
 					Snake->AddSnakeElement(1);
-					points += 1;
-					this->Destroy();
+				
+					
+					this->MoveFood();
 					break;
 				case 2:
 					Snake->AddSnakeElement(2);
-					points += 2;
+		
 					this->Destroy();
 					break;
 				case 3:
@@ -56,6 +58,39 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 			}
 			;
 		}
+	}
+}
+
+
+
+void AFood::MoveFood()
+{
+	int iterator = 0;
+	bool flag = false;
+	FVector NewCoords;
+
+	const float radius = 32.0f; 
+	ETraceTypeQuery sphereTraceQuery = ETraceTypeQuery::TraceTypeQuery1;
+	const TArray<AActor*> ActorsToIgnore;
+	const float drawTime = 5.0f;
+	UWorld* World = GetWorld();
+	while (iterator != 150 || flag == false)
+	{
+		
+		NewCoords = FVector(FMath::RandRange(-200,200), FMath::RandRange(-200, 200), 20);
+		TArray<FHitResult> HitResults; 
+
+		UKismetSystemLibrary::SphereTraceMulti(World, NewCoords, NewCoords, radius, sphereTraceQuery, false,
+			ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResults, true,
+			FLinearColor::Green, FLinearColor::Red, drawTime);
+
+		if (HitResults.Num() == 0) 
+		{
+			this->SetActorLocation(NewCoords);
+			flag = true;
+		}
+
+		iterator++; 
 	}
 }
 

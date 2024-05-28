@@ -4,15 +4,15 @@
 #include "SnakeBase.h"
 #include "SnakeElementBase.h"
 #include "Interactable.h"
-
+#include "SnakeElementsShow.h"
 // Sets dault values
 ASnakeBase::ASnakeBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ElementSize = 100.f;
+	LastMoveDirection = EMovementDirection::DOWN;
 
-	
 }
 
 // Called when the game starts or when spawned
@@ -20,7 +20,8 @@ void ASnakeBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorTickInterval(MovementSpeed);
-	AddSnakeElement(2);
+	AddSnakeElement(5);
+	
 }
 
 // Called every frame
@@ -34,19 +35,25 @@ void ASnakeBase::AddSnakeElement(int ElementsNum)
 {
 	for (int i = 0; i < ElementsNum; i++)
 	{
-		FVector NewLocation(SnakeElements.Num() * ElementSize, 0, 0);
-		FTransform NewTransform(NewLocation);
-	
-		ASnakeElementBase* NewSnakeElem = GetWorld()->SpawnActor<ASnakeElementBase>(SnakeElementBase,NewTransform);
-		
-		int32 ElemIndex = SnakeElements.Add(NewSnakeElem);
+		FVector NewLocation;
+		if (SnakeElements.Num() > 0)
+		{
+			ASnakeElementBase* LastElement = SnakeElements[SnakeElements.Num()- 1];
+			NewLocation = LastElement->GetActorLocation() + FVector(ElementSize, 0, 0);
+		}
 
+		FTransform NewTransform(NewLocation);
+		ASnakeElementBase* NewSnakeElem = GetWorld()->SpawnActor<ASnakeElementBase>(SnakeElementBase, NewTransform);
+		int32 ElemIndex = SnakeElements.Add(NewSnakeElem);
 		NewSnakeElem->SnakeOwner = this;
+
+
 		if (ElemIndex == 0)
 		{
 			NewSnakeElem->SetFirstElementType();
 			
 		}
+	
 	}
 	
 }
@@ -118,4 +125,6 @@ void ASnakeBase::RemoveSnakeElement(int NumElementsToRemove)
 		}
 	}
 }
+
+
 
