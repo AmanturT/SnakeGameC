@@ -4,7 +4,7 @@
 #include "Food.h"
 #include "SnakeBase.h"
 #include "Kismet/KismetSystemLibrary.h"
-
+#include "Kismet/GameplayStatics.h"
 // Sets default values
 AFood::AFood()
 {
@@ -45,15 +45,15 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 				case 2:
 					Snake->AddSnakeElement(2);
 		
-					this->Destroy();
+					this->MoveFood();
 					break;
 				case 3:
 					Snake->RemoveSnakeElement(1);
-					this->Destroy();
+					this->MoveFood();
 					break;
 				case 4:
 					Snake->RemoveSnakeElement(2);
-					this->Destroy();
+					this->MoveFood();
 					break;
 			}
 			;
@@ -69,28 +69,45 @@ void AFood::MoveFood()
 	bool flag = false;
 	FVector NewCoords;
 
-	const float radius = 32.0f; 
+	const float radius = 32.0f;
 	ETraceTypeQuery sphereTraceQuery = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<AActor*> ActorsToIgnore;
 	const float drawTime = 5.0f;
 	UWorld* World = GetWorld();
-	while (iterator != 150 || flag == false)
+	ASnakeBase* SnakeBase = Cast<ASnakeBase>(UGameplayStatics::GetActorOfClass(World, ASnakeBase::StaticClass()));
+	FVector SnakeBaseLocation;
+	FBox FoodBoundingBox = GetComponentsBoundingBox();
+	if (SnakeBase)
 	{
-		
-		NewCoords = FVector(FMath::RandRange(-200,200), FMath::RandRange(-200, 200), 20);
-		TArray<FHitResult> HitResults; 
+		SnakeBaseLocation = SnakeBase->GetActorLocation();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("SnakeBase is nullptr"));
+	}
+	
+	
+	while (iterator < 5  && !flag) 
+	{
+		NewCoords = FVector(FMath::RandRange(-1000, 1000), FMath::RandRange(-1000,1000), SnakeBaseLocation.Z + FoodBoundingBox.GetSize().Z / 4);
+		TArray<FHitResult> HitResults;
 
 		UKismetSystemLibrary::SphereTraceMulti(World, NewCoords, NewCoords, radius, sphereTraceQuery, false,
 			ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResults, true,
 			FLinearColor::Green, FLinearColor::Red, drawTime);
 
-		if (HitResults.Num() == 0) 
+		if (HitResults.Num() == 0)
 		{
 			this->SetActorLocation(NewCoords);
 			flag = true;
 		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("SnakeBase Z Coordinate: %f"), SnakeBaseLocation.Z);
+		}
+		iterator++;
 
-		iterator++; 
 	}
-}
 
+	
+}

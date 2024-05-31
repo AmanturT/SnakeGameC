@@ -5,6 +5,8 @@
 #include "SnakeElementBase.h"
 #include "Interactable.h"
 #include "SnakeElementsShow.h"
+#include "Blueprint/UserWidget.h"
+
 // Sets dault values
 ASnakeBase::ASnakeBase()
 {
@@ -12,7 +14,12 @@ ASnakeBase::ASnakeBase()
 	PrimaryActorTick.bCanEverTick = true;
 	ElementSize = 100.f;
 	LastMoveDirection = EMovementDirection::DOWN;
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT("/Game/Blueprints/GUI/SnakeElementsShowWidget.SnakeElementsShowWidget_C"));
 
+	if (WidgetClassFinder.Succeeded())
+	{
+		WidgetClass = WidgetClassFinder.Class;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -21,7 +28,9 @@ void ASnakeBase::BeginPlay()
 	Super::BeginPlay();
 	SetActorTickInterval(MovementSpeed);
 	AddSnakeElement(5);
+	SetWidgetText();
 	
+
 }
 
 // Called every frame
@@ -55,7 +64,7 @@ void ASnakeBase::AddSnakeElement(int ElementsNum)
 		}
 	
 	}
-	
+	SetWidgetText();
 }
 
 void ASnakeBase::Move()
@@ -124,7 +133,29 @@ void ASnakeBase::RemoveSnakeElement(int NumElementsToRemove)
 			LastElement->Destroy();
 		}
 	}
+	else
+	{
+		this->Destroy();
+	}
+	SetWidgetText();
 }
 
+void ASnakeBase::SetWidgetText()
+{
+	if (CurrentSnakeElementsWidget != nullptr)
+	{
+		CurrentSnakeElementsWidget->RemoveFromParent();
+		CurrentSnakeElementsWidget = nullptr;
+	}
 
+	
+	CurrentSnakeElementsWidget = CreateWidget<USnakeElementsShow>(GetWorld(), WidgetClass);
+	if (CurrentSnakeElementsWidget != nullptr)
+	{
+		CurrentSnakeElementsWidget->AddToViewport(1); 
+		CurrentSnakeElementsWidget->UpdateElementCount(SnakeElements.Num());
+	}
+	
+
+}
 

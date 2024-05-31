@@ -44,8 +44,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float MovementSpeed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	USnakeElementsShow* SnakeElementsShow;
+	UPROPERTY()
+	TSubclassOf<class UUserWidget> WidgetClass;
+
+	UPROPERTY()
+	USnakeElementsShow* CurrentSnakeElementsWidget;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,5 +65,5 @@ public:
 
 	void RemoveSnakeElement(int NumElementsToRemove);
 
-	
+	void SetWidgetText();
 };

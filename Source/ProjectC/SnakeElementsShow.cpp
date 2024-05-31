@@ -4,16 +4,25 @@
 #include "SnakeElementsShow.h"
 #include "Components/TextBlock.h"
 
-
-
-
-
-void USnakeElementsShow::SetSnakeElementCount(int32 Count)
+void USnakeElementsShow::NativeConstruct()
 {
-   
-        FString Text = FString::FromInt(Count);
-        Text.Append(" Elements");
-        TextBlock->SetText(FText::FromString(Text));
+    Super::NativeConstruct();
+    if (!ElementCountText)
+    {
+        UE_LOG(LogTemp, Error, TEXT("ElementCountText is not bound to the widget!1"));
+    }
+}
+
+void USnakeElementsShow::UpdateElementCount(int32 ElementCount)
+{
+    if (ElementCountText)
+    {
+        ElementCountText->SetText(FText::FromString(FString::Printf(TEXT("Elements: %d"), ElementCount)));
+       
+    }
     
-   
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("ElementCountText is not bound to the widget!2"));
+    }
 }

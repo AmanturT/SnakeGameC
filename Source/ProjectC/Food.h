@@ -8,6 +8,7 @@
 #include "Interactable.h"
 #include "Food.generated.h"
 
+class ASnakeBase;
 UCLASS()
 class PROJECTC_API AFood : public AActor, public IInteractable
 {
@@ -18,6 +19,7 @@ class PROJECTC_API AFood : public AActor, public IInteractable
 	UPROPERTY()
 	int32 points;
 
+	
 public:	
 	// Sets default values for this actor's properties
 	AFood();
