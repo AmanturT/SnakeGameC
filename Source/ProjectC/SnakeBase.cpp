@@ -13,6 +13,7 @@ ASnakeBase::ASnakeBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ElementSize = 100.f;
+	
 	LastMoveDirection = EMovementDirection::DOWN;
 	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT("/Game/Blueprints/GUI/SnakeElementsShowWidget.SnakeElementsShowWidget_C"));
 
@@ -158,4 +159,3 @@ void ASnakeBase::SetWidgetText()
 	
 
 }
-

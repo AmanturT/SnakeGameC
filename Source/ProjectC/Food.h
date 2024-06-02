@@ -8,18 +8,18 @@
 #include "Interactable.h"
 #include "Food.generated.h"
 
-class ASnakeBase;
+
 UCLASS()
 class PROJECTC_API AFood : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly)
-	int32 id;
-	UPROPERTY()
-	int32 points;
+	int id;
 
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	int MaxRespawns;
 public:	
 	// Sets default values for this actor's properties
 	AFood();

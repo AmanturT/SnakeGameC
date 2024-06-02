@@ -55,6 +55,12 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 					Snake->RemoveSnakeElement(2);
 					this->MoveFood();
 					break;
+				case 5:
+					Snake->SetActorTickInterval(Snake->MovementSpeed * 0.95);
+					
+					
+					this->MoveFood();
+					
 			}
 			;
 		}
@@ -66,6 +72,7 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 void AFood::MoveFood()
 {
 	int iterator = 0;
+	
 	bool flag = false;
 	FVector NewCoords;
 
@@ -86,28 +93,36 @@ void AFood::MoveFood()
 		UE_LOG(LogTemp, Error, TEXT("SnakeBase is nullptr"));
 	}
 	
-	
-	while (iterator < 5  && !flag) 
+	if (MaxRespawns < 3)
 	{
-		NewCoords = FVector(FMath::RandRange(-1000, 1000), FMath::RandRange(-1000,1000), SnakeBaseLocation.Z + FoodBoundingBox.GetSize().Z / 4);
-		TArray<FHitResult> HitResults;
+		while (iterator < 150  && !flag ) 
+			{
+				NewCoords = FVector(FMath::RandRange(-1000, 1000), FMath::RandRange(-1000,1000), SnakeBaseLocation.Z + FoodBoundingBox.GetSize().Z / 4);
+				TArray<FHitResult> HitResults;
 
-		UKismetSystemLibrary::SphereTraceMulti(World, NewCoords, NewCoords, radius, sphereTraceQuery, false,
-			ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResults, true,
-			FLinearColor::Green, FLinearColor::Red, drawTime);
+				UKismetSystemLibrary::SphereTraceMulti(World, NewCoords, NewCoords, radius, sphereTraceQuery, false,
+					ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResults, true,
+					FLinearColor::Green, FLinearColor::Red, drawTime);
 
-		if (HitResults.Num() == 0)
-		{
-			this->SetActorLocation(NewCoords);
-			flag = true;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Log, TEXT("SnakeBase Z Coordinate: %f"), SnakeBaseLocation.Z);
-		}
-		iterator++;
-
+				if (HitResults.Num() == 0)
+				{
+					this->SetActorLocation(NewCoords);
+					flag = true;
+				}
+				else
+				{
+					UE_LOG(LogTemp, Log, TEXT("SnakeBase Z Coordinate: %f"), SnakeBaseLocation.Z);
+				}
+				iterator++;
+		
+			}
+		MaxRespawns += 1;
 	}
+	else
+	{
+		this->Destroy();
+	}
+	
 
 	
 }

@@ -66,4 +66,6 @@ public:
 	void RemoveSnakeElement(int NumElementsToRemove);
 
 	void SetWidgetText();
+
+	
 };
