@@ -20,6 +20,9 @@ class PROJECTC_API AFood : public AActor, public IInteractable
 
 	UPROPERTY(EditDefaultsOnly)
 	int MaxRespawns;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HungerTime;
 public:	
 	// Sets default values for this actor's properties
 	AFood();

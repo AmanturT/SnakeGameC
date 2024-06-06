@@ -10,7 +10,7 @@ AFood::AFood()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 }
 
 // Called when the game starts or when spawned
@@ -39,26 +39,28 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 				case 1:
 					Snake->AddSnakeElement(1);
 				
-					
+					Snake->Hunger(HungerTime);
 					this->MoveFood();
 					break;
 				case 2:
 					Snake->AddSnakeElement(2);
-		
+					Snake->Hunger(HungerTime);
 					this->MoveFood();
 					break;
 				case 3:
 					Snake->RemoveSnakeElement(1);
+					Snake->Hunger(HungerTime);
 					this->MoveFood();
 					break;
 				case 4:
 					Snake->RemoveSnakeElement(2);
+					Snake->Hunger(HungerTime);
 					this->MoveFood();
 					break;
 				case 5:
-					Snake->SetActorTickInterval(Snake->MovementSpeed * 0.95);
+					Snake->SetActorTickInterval(Snake->MovementSpeed * 0.7);
 					
-					
+					Snake->Hunger(HungerTime);
 					this->MoveFood();
 					
 			}

@@ -30,7 +30,7 @@ void ASnakeBase::BeginPlay()
 	SetActorTickInterval(MovementSpeed);
 	AddSnakeElement(5);
 	SetWidgetText();
-	
+	Hunger(30);
 
 }
 
@@ -159,3 +159,15 @@ void ASnakeBase::SetWidgetText()
 	
 
 }
+
+void ASnakeBase::Hunger(float time)
+{
+	GetWorld()->GetTimerManager().SetTimer(UnUsedHandle, this, &ASnakeBase::ToDoAfterTimerOff, time + GetWorld()->GetTimerManager().GetTimerRemaining(UnUsedHandle), false);
+}
+
+void ASnakeBase::ToDoAfterTimerOff()
+{
+	Destroy();
+}
+
+

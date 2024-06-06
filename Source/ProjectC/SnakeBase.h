@@ -49,6 +49,8 @@ public:
 
 	UPROPERTY()
 	USnakeElementsShow* CurrentSnakeElementsWidget;
+
+	FTimerHandle UnUsedHandle;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -67,5 +69,7 @@ public:
 
 	void SetWidgetText();
 
+	void Hunger(float time);
+	void ToDoAfterTimerOff();
 	
 };
