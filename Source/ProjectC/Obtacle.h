@@ -11,7 +11,13 @@ UCLASS()
 class PROJECTC_API AObtacle : public AActor, public IInteractable
 {
 	GENERATED_BODY()
-	
+
+
+	UPROPERTY(EditDefaultsOnly)
+	float LifeTimeOfObtacle;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool IsObtacleImmortal;
 public:	
 	// Sets default values for this actor's properties
 	AObtacle();
@@ -25,4 +31,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Interact(AActor* Interactor, bool bIsHead) override;
+
+	
+	UFUNCTION()
+	void OnDelayCompleted();
 };

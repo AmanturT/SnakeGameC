@@ -40,4 +40,6 @@ public:
 	
 
 	void MoveFood();
+
+	void GenerateFood();
 };

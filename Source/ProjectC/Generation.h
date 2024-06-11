@@ -23,6 +23,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfSingleObtacles;
+
+	UPROPERTY(EditDefaultsOnly)
+	int countOfStructures;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -20,7 +20,9 @@ void AGeneration::BeginPlay()
 {
 	Super::BeginPlay();
     GetActortFromFolder("/Game/Blueprints/Obtacles/SingleObtacles", SingleObtacles);
-    GenerateObtacles(SingleObtacles, 4);
+    GenerateObtacles(SingleObtacles, countOfSingleObtacles);
+    GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
+    GenerateObtacles(Structures, countOfStructures);
 }
 
 // Called every frame
