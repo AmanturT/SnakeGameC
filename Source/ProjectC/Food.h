@@ -23,6 +23,14 @@ class PROJECTC_API AFood : public AActor, public IInteractable
 
 	UPROPERTY(EditDefaultsOnly)
 	float HungerTime;
+
+	UPROPERTY(EditDefaultsOnly)
+	int CountOfGeneratingFood;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool IsGeneratingBlueprint;
+
+	TArray<AFood*> FoodLoadedArray;
 public:	
 	// Sets default values for this actor's properties
 	AFood();
@@ -39,7 +47,9 @@ public:
 
 	
 
-	void MoveFood();
+	void GetActortFromFolder(const FString& WhichFolder, TArray<AFood*>& OutClasses);
 
-	void GenerateFood();
+	void GenerateFood(AFood* WhichFoodType);
+
+	AFood* GetRandomFoodType();
 };

@@ -26,6 +26,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ASnakeBase> SnakeActorClass;
 
+	bool IsGameStarted;
+    
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -43,5 +46,11 @@ public:
 	void HandlePlayerVerticalInput(float value);
 	UFUNCTION()
 	void HandlePlayerHorizontalInput(float value);
+
+	UFUNCTION()
+	void StartGame();
+
+	UFUNCTION()
+	void StopGame();
 
 };

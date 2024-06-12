@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "SnakeBase.h"
 #include "Components/InputComponent.h"
+#include "Kismet/GameplayStatics.h"
 // Sets default values
 APlayerPawnBase::APlayerPawnBase()
 {
@@ -37,6 +38,9 @@ void APlayerPawnBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAxis("Vertical", this, &APlayerPawnBase::HandlePlayerVerticalInput);
 
 	PlayerInputComponent->BindAxis("Horizontal", this, &APlayerPawnBase::HandlePlayerHorizontalInput);
+
+	PlayerInputComponent->BindAction("StartGame", IE_Pressed, this, &APlayerPawnBase::StartGame);
+	PlayerInputComponent->BindAction("StopGame", IE_Pressed, this, &APlayerPawnBase::StopGame);
 }
 
 void APlayerPawnBase::CreateSnakeActor()
@@ -72,5 +76,26 @@ void APlayerPawnBase::HandlePlayerHorizontalInput(float value)
 			SnakeActor->LastMoveDirection = EMovementDirection::LEFT;
 		}
 	}
+}
+
+void APlayerPawnBase::StartGame()
+{   
+
+	FActorSpawnParameters SpawnParams;
+	if (!IsGameStarted)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Input Working Start1"))
+		IsGameStarted = true;
+	}
+	else {
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
+		UE_LOG(LogTemp, Error, TEXT("Input Working Start2"))
+	}
+}
+
+void APlayerPawnBase::StopGame()
+{
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(),0 );
+	UE_LOG(LogTemp, Error, TEXT("Input Working Stop"))
 }
 
