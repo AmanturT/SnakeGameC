@@ -51,6 +51,10 @@ public:
 	USnakeElementsShow* CurrentSnakeElementsWidget;
 
 	FTimerHandle UnUsedHandle;
+
+	UPROPERTY(EditDefaultsOnly)
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -20,7 +20,7 @@ void APlayerPawnBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorRotation(FRotator(-90, 0, 0));
-	CreateSnakeActor();
+	
 }
 
 // Called every frame
@@ -84,7 +84,7 @@ void APlayerPawnBase::StartGame()
 	FActorSpawnParameters SpawnParams;
 	if (!IsGameStarted)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Input Working Start1"))
+		CreateSnakeActor();
 		IsGameStarted = true;
 	}
 	else {

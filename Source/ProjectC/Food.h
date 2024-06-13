@@ -30,6 +30,7 @@ class PROJECTC_API AFood : public AActor, public IInteractable
 	UPROPERTY(EditDefaultsOnly)
 	bool IsGeneratingBlueprint;
 
+	
 	TArray<AFood*> FoodLoadedArray;
 public:	
 	// Sets default values for this actor's properties
@@ -52,4 +53,6 @@ public:
 	void GenerateFood(AFood* WhichFoodType);
 
 	AFood* GetRandomFoodType();
+	//Проверка не находится ли будущая еда в месте спавна змейки
+	bool IsNewCoordsInSnakeSpawn(float pointX, float pointY, float sideLength);
 };

@@ -59,14 +59,29 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 					this->GenerateFood(this);
 					break;
 				case 3:
-					Snake->RemoveSnakeElement(1);
-					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					if (Snake->SnakeElements.Num() > 1)
+					{
+						Snake->RemoveSnakeElement(1);
+						Snake->Hunger(HungerTime);
+						this->GenerateFood(this);
+					}
+					else
+					{
+						Snake->Destroy();
+					}
+					
 					break;
 				case 4:
-					Snake->RemoveSnakeElement(2);
-					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					if (Snake->SnakeElements.Num() > 2)
+					{
+						Snake->RemoveSnakeElement(2);
+						Snake->Hunger(HungerTime);
+						this->GenerateFood(this);
+					}
+					else
+					{
+						Snake->Destroy();
+					}
 					break;
 				case 5:
 					Snake->SetActorTickInterval(Snake->MovementSpeed * 0.7);
@@ -111,9 +126,13 @@ void AFood::GenerateFood(AFood* WhichFoodType)
 		{
 			if (this->id == 0)
 			{
-				UClass* FoodClass = WhichFoodType->GetClass();
-				AFood* SpawningFood = World->SpawnActor<AFood>(FoodClass,NewCoords,{0,0,0},SpawnParams);
-				UE_LOG(LogTemp, Error, TEXT("Spawned"));
+				if (!IsNewCoordsInSnakeSpawn(NewCoords.X, NewCoords.Y, 100))
+				{
+					UClass* FoodClass = WhichFoodType->GetClass();
+					AFood* SpawningFood = World->SpawnActor<AFood>(FoodClass,NewCoords,{0,0,0},SpawnParams);
+					UE_LOG(LogTemp, Error, TEXT("Spawned"));
+				}
+				
 			}
 			else
 			{
@@ -137,6 +156,20 @@ AFood* AFood::GetRandomFoodType()
 	AFood* GeneratingFood = FoodLoadedArray[FMath::RandRange(0, FoodLoadedArray.Num() - 1)];
 	UE_LOG(LogTemp, Warning, TEXT("Name of Food: %s"), *GeneratingFood->GetName());
 	return GeneratingFood;
+}
+
+bool AFood::IsNewCoordsInSnakeSpawn(float pointX, float pointY, float sideLength)
+{
+	//Если что то из ниже не выполняется значит корды нормальные
+	float halfSide = sideLength / 2.0f;
+	if (pointX >= -halfSide && pointX <= halfSide && pointY >= -halfSide && pointY <= halfSide)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
