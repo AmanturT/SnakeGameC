@@ -7,7 +7,10 @@
 #include "Generation.generated.h"
 
 class AObtacle;
-class AFood;
+class ABaseMapSegment;
+class ABasicMap;
+class AFinalMap;
+class ASnakeBase;
 UCLASS()
 class PROJECTC_API AGeneration : public AActor
 {
@@ -19,13 +22,25 @@ public:
 
 	TArray<AObtacle*> SingleObtacles;
 	TArray<AObtacle*> Structures;
-	TArray<AFood*> Foods;
+	
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfSingleObtacles;
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfStructures;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ABasicMap> BasicMapClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AFinalMap> FinalMapClass;
+
+	ABaseMapSegment* CurrentMapSegment;
+	ASnakeBase* Snake; // ”казатель на змею
+	
+	UPROPERTY(EditAnywhere)
+	float MapSegmentLength = 2000.0f; // ƒлина сегмента карты
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,4 +53,8 @@ public:
 	void GetActortFromFolder(const FString& WhichFolder,TArray<AObtacle*>& OutClasses);
 
 	void GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count);
+
+	void SpawnNewMapSegment(FVector SpawnLocation);
+
+	void CheckSnakePosition();
 };

@@ -4,6 +4,10 @@
 #include "Generation.h"
 #include "Obtacle.h"
 #include "Food.h"
+#include "BaseMapSegment.h"
+#include "BasicMap.h"
+#include "FinalMap.h"
+#include "SnakeBase.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/AssetData.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -12,7 +16,7 @@ AGeneration::AGeneration()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+    
 }
 
 // Called when the game starts or when spawned
@@ -23,6 +27,10 @@ void AGeneration::BeginPlay()
     GenerateObtacles(SingleObtacles, countOfSingleObtacles);
     GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
     GenerateObtacles(Structures, countOfStructures);
+    
+
+
+    SpawnNewMapSegment(FVector(0, 0, 0));
 }
 
 // Called every frame
@@ -30,6 +38,10 @@ void AGeneration::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    if (Snake && CurrentMapSegment)
+    {
+        CheckSnakePosition();
+    }
 }
 
 void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacle*>& OutClasses)
@@ -167,6 +179,71 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 
     // Логирование длины ArrayOfObtacles после завершения генерации
     UE_LOG(LogTemp, Warning, TEXT("Final length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
+}
+
+void AGeneration::SpawnNewMapSegment(FVector SpawnLocation)
+{
+    FActorSpawnParameters SpawnParams;
+    
+
+    // Шанс спавна FinalMap
+    if (FMath::RandRange(0, 99) < 1) // 1% шанс
+    {
+        CurrentMapSegment = GetWorld()->SpawnActor<AFinalMap>(FinalMapClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+        
+        
+    }
+    else
+    {
+        CurrentMapSegment = GetWorld()->SpawnActor<ABasicMap>(BasicMapClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+        
+    }
+    if (CurrentMapSegment)
+{
+    FVector SegmentSize = CurrentMapSegment->GetActorScale3D();
+    UE_LOG(LogTemp, Warning, TEXT("CurrentMapSegment Size: X=%f, Y=%f, Z=%f"), SegmentSize.X, SegmentSize.Y, SegmentSize.Z);
+}
+else
+{
+    UE_LOG(LogTemp, Error, TEXT("Failed to spawn CurrentMapSegment!"));
+}
+    if (CurrentMapSegment)
+    {
+        GenerateObtacles(SingleObtacles, countOfSingleObtacles);
+        GenerateObtacles(Structures, countOfStructures);
+    }
+}
+
+void AGeneration::CheckSnakePosition()
+{
+    FVector SnakeLocation = Snake->GetActorLocation();
+    FVector SegmentLocation = CurrentMapSegment->GetActorLocation();
+
+    float DistanceToLeft = FVector::Dist(SnakeLocation, SegmentLocation - FVector(MapSegmentLength / 2, 0, 0));
+    float DistanceToRight = FVector::Dist(SnakeLocation, SegmentLocation + FVector(MapSegmentLength / 2, 0, 0));
+    float DistanceToTop = FVector::Dist(SnakeLocation, SegmentLocation + FVector(0, MapSegmentLength / 2, 0));
+    float DistanceToBottom = FVector::Dist(SnakeLocation, SegmentLocation - FVector(0, MapSegmentLength / 2, 0));
+
+    if (DistanceToLeft <= 5000.0f)
+    {
+        FVector NewSegmentLocation = SegmentLocation - FVector(MapSegmentLength, 0, 0);
+        SpawnNewMapSegment(NewSegmentLocation);
+    }
+    else if (DistanceToRight <= 5000.0f)
+    {
+        FVector NewSegmentLocation = SegmentLocation + FVector(MapSegmentLength, 0, 0);
+        SpawnNewMapSegment(NewSegmentLocation);
+    }
+    else if (DistanceToTop <= 5000.0f)
+    {
+        FVector NewSegmentLocation = SegmentLocation + FVector(0, MapSegmentLength, 0);
+        SpawnNewMapSegment(NewSegmentLocation);
+    }
+    else if (DistanceToBottom <= 5000.0f)
+    {
+        FVector NewSegmentLocation = SegmentLocation - FVector(0, MapSegmentLength, 0);
+        SpawnNewMapSegment(NewSegmentLocation);
+    }
 }
 
 
