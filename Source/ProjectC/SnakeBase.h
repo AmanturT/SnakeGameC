@@ -54,7 +54,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 
-
+	float HungerTime;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -76,4 +76,5 @@ public:
 	void Hunger(float time);
 	void ToDoAfterTimerOff();
 	
+
 };
