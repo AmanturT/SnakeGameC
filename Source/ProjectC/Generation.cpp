@@ -4,9 +4,7 @@
 #include "Generation.h"
 #include "Obtacle.h"
 #include "Food.h"
-#include "BaseMapSegment.h"
-#include "BasicMap.h"
-#include "FinalMap.h"
+
 #include "SnakeBase.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/AssetData.h"
@@ -16,7 +14,7 @@ AGeneration::AGeneration()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-    
+ 
 }
 
 // Called when the game starts or when spawned
@@ -24,13 +22,13 @@ void AGeneration::BeginPlay()
 {
 	Super::BeginPlay();
     GetActortFromFolder("/Game/Blueprints/Obtacles/SingleObtacles", SingleObtacles);
-    GenerateObtacles(SingleObtacles, countOfSingleObtacles);
     GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
-    GenerateObtacles(Structures, countOfStructures);
+    GetActortFromFolder("/Game/Blueprints/GameFields", Fields);
+    
     
 
 
-    SpawnNewMapSegment(FVector(0, 0, 0));
+    SpawnNewMapSegment(FVector(0,0,0));
 }
 
 // Called every frame
@@ -64,7 +62,7 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
     // Запрашиваем ассеты с помощью фильтра
     TArray<FAssetData> AssetDataList;
     AssetRegistry.GetAssets(AssetFilter, AssetDataList);
-    UE_LOG(LogTemp, Warning, TEXT("Number of assets found: %d"), AssetDataList.Num());
+ 
    
 
 
@@ -79,20 +77,17 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
                 if (DefaultObject)
                 {
                     OutClasses.Add(DefaultObject);
-                    UE_LOG(LogTemp, Error, TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
+                    
 
-                    // Вывод длины OutClasses после добавления элемента
-                    UE_LOG(LogTemp, Warning, TEXT("OutClasses length: %d"), SingleObtacles.Num());
+                    
+                   
                     
                 }
-                else
-                {
-                    UE_LOG(LogTemp, Error, TEXT("DefaultObject cast failed for Blueprint: %s"), *Blueprint->GetName());
-                }
+               
             }
             
         }
-        UE_LOG(LogTemp, Error, TEXT("Loop working!!!"));
+       
     }
 }
 
@@ -109,14 +104,9 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
     AObtacle* GeneratingObtacle = nullptr;
     UWorld* World = GetWorld();
     FRotator NewRotation;
-    // Логирование длины ArrayOfObtacles до начала генерации
-    UE_LOG(LogTemp, Warning, TEXT("Initial length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
+    
 
-    if (!World)
-    {
-        UE_LOG(LogTemp, Error, TEXT("World is null"));
-        return;
-    }
+ 
 
     for (int i = 0; i < count; i++)
     {
@@ -139,79 +129,63 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
                 {
                     GeneratingObtacle = ArrayOfObtacles[FMath::RandRange(0, ArrayOfObtacles.Num() - 1)];
 
-                    // Проверка на случай, если GeneratingObtacle равен nullptr
-                    if (!GeneratingObtacle)
-                    {
-                        UE_LOG(LogTemp, Error, TEXT("GeneratingObtacle is null before spawning"));
-                        continue;
-                    }
+                  
 
                     // Попытка создать новый объект
                     AObtacle* SpawnedObtacle = GetWorld()->SpawnActor<AObtacle>(GeneratingObtacle->GetClass(), NewCoords,NewRotation, SpawnParams);
 
                     // Проверка на случай, если SpawnedObtacle равен nullptr
-                    if (!SpawnedObtacle)
-                    {
-                        UE_LOG(LogTemp, Error, TEXT("Failed to spawn AObtacle"));
-                        continue;
-                    }
-
+                    
                     // Логирование имени GeneratingObtacle
-                    UE_LOG(LogTemp, Warning, TEXT("Spawned Obtacle: %s"), *SpawnedObtacle->GetName());
+                  
 
                     flag = true;
 
                     // Логирование длины ArrayOfObtacles после добавления нового препятствия
-                    UE_LOG(LogTemp, Warning, TEXT("Length of ArrayOfObtacles after spawning: %d"), ArrayOfObtacles.Num());
+                    
                 }
-                else
-                {
-                    UE_LOG(LogTemp, Error, TEXT("ArrayOfObtacles is empty"));
-                }
+                
             }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("Hit results detected in trace"));
-            }
+          
             iterator++;
         }
     }
 
-    // Логирование длины ArrayOfObtacles после завершения генерации
-    UE_LOG(LogTemp, Warning, TEXT("Final length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
 }
 
 void AGeneration::SpawnNewMapSegment(FVector SpawnLocation)
 {
+    
+   
+
+    // Вычисляем случайное число от 0 до 99
+    int32 RandomNumber = FMath::RandRange(0, 99);
     FActorSpawnParameters SpawnParams;
+    // Выбираем элемент массива Fields в зависимости от случайного числа
+    AObtacle* SpawnedObstacle = nullptr;
+    if (Fields.Num() != 0)
+    {
+        SpawnedObstacle = Fields[0];
+
     
 
-    // Шанс спавна FinalMap
-    if (FMath::RandRange(0, 99) < 1) // 1% шанс
-    {
-        CurrentMapSegment = GetWorld()->SpawnActor<AFinalMap>(FinalMapClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
-        
-        
+       
+        AObtacle* SpawnedObject = GetWorld()->SpawnActor<AObtacle>(SpawnedObstacle->GetClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+
+        if(SpawnedObject)
+        {
+            UE_LOG(LogTemp,Error,TEXT("sdawerqwtfgrmigsrmnvg9[gbyjmnuwbh"))
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("SpawnNewMapSegment: Failed to spawn obstacle"));
+        }
+
     }
-    else
-    {
-        CurrentMapSegment = GetWorld()->SpawnActor<ABasicMap>(BasicMapClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
-        
-    }
-    if (CurrentMapSegment)
-{
-    FVector SegmentSize = CurrentMapSegment->GetActorScale3D();
-    UE_LOG(LogTemp, Warning, TEXT("CurrentMapSegment Size: X=%f, Y=%f, Z=%f"), SegmentSize.X, SegmentSize.Y, SegmentSize.Z);
-}
-else
-{
-    UE_LOG(LogTemp, Error, TEXT("Failed to spawn CurrentMapSegment!"));
-}
-    if (CurrentMapSegment)
-    {
-        GenerateObtacles(SingleObtacles, countOfSingleObtacles);
-        GenerateObtacles(Structures, countOfStructures);
-    }
+   
+
+  
+ 
 }
 
 void AGeneration::CheckSnakePosition()

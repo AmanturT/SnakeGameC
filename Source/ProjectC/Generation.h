@@ -7,9 +7,7 @@
 #include "Generation.generated.h"
 
 class AObtacle;
-class ABaseMapSegment;
-class ABasicMap;
-class AFinalMap;
+
 class ASnakeBase;
 UCLASS()
 class PROJECTC_API AGeneration : public AActor
@@ -22,6 +20,7 @@ public:
 
 	TArray<AObtacle*> SingleObtacles;
 	TArray<AObtacle*> Structures;
+	TArray<AObtacle*> Fields;
 	
 
 	UPROPERTY(EditDefaultsOnly)
@@ -30,13 +29,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	int countOfStructures;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<ABasicMap> BasicMapClass;
+	
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AFinalMap> FinalMapClass;
-
-	ABaseMapSegment* CurrentMapSegment;
+	AObtacle* FinalMap;
+	AObtacle* BasicMap;
+	AObtacle* CurrentMapSegment;
 	ASnakeBase* Snake; // ”казатель на змею
 	
 	UPROPERTY(EditAnywhere)
