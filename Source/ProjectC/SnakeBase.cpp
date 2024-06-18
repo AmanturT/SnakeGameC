@@ -6,7 +6,7 @@
 #include "Interactable.h"
 #include "SnakeElementsShow.h"
 #include "Blueprint/UserWidget.h"
-
+#include "HungerWidget.h"
 // Sets dault values
 ASnakeBase::ASnakeBase()
 {
@@ -21,6 +21,8 @@ ASnakeBase::ASnakeBase()
 	{
 		WidgetClass = WidgetClassFinder.Class;
 	}
+	TotalHungerTime = 30;
+	IsInvincibleForObtacles = false;
 }
 
 // Called when the game starts or when spawned
@@ -30,8 +32,8 @@ void ASnakeBase::BeginPlay()
 	SetActorTickInterval(MovementSpeed);
 	AddSnakeElement(5);
 	SetWidgetText();
-	Hunger(30);
-
+	Hunger(TotalHungerTime);
+	ShowHungerWidget();
 }
 
 // Called every frame
@@ -39,6 +41,7 @@ void ASnakeBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	Move();
+	UpdateHungerProgress();
 }
 
 void ASnakeBase::AddSnakeElement(int ElementsNum)
@@ -163,7 +166,7 @@ void ASnakeBase::SetWidgetText()
 void ASnakeBase::Hunger(float time)
 {
 	
-	GetWorld()->GetTimerManager().SetTimer(UnUsedHandle, this, &ASnakeBase::ToDoAfterTimerOff, time + GetWorld()->GetTimerManager().GetTimerRemaining(UnUsedHandle), false);
+	GetWorld()->GetTimerManager().SetTimer(UnUsedHandle, this, &ASnakeBase::ToDoAfterTimerOff, time, false);
 }
 
 void ASnakeBase::ToDoAfterTimerOff()
@@ -171,4 +174,42 @@ void ASnakeBase::ToDoAfterTimerOff()
 	Destroy();
 }
 
+void ASnakeBase::ShowHungerWidget()
+{
+	if (HungerWidgetClass)
+	{
+		HungerWidget = CreateWidget<UHungerWidget>(GetWorld(), HungerWidgetClass);
+		if (HungerWidget)
+		{
+			HungerWidget->AddToViewport(1);
+		}
+	}
+}
 
+void ASnakeBase::EnableNoCollision(float time)
+{
+	IsInvincibleForObtacles = true;
+
+	
+	GetWorld()->GetTimerManager().SetTimer(CollisionTimerHandle, this, &ASnakeBase::EnableOverlapAllCollision, time, false);
+}
+
+
+void ASnakeBase::EnableOverlapAllCollision()
+{
+	IsInvincibleForObtacles = false;
+}
+
+void ASnakeBase::UpdateHungerProgress()
+{
+	if (HungerWidget)
+	{
+		float RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(UnUsedHandle);
+		float Progress = RemainingTime / TotalHungerTime;
+		HungerWidget->SetHungerProgress(Progress);
+	}
+	else
+	{
+		UE_LOG(LogTemp,Error,TEXT("Hunget Widget is null"))
+	}
+}

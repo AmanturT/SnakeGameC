@@ -88,9 +88,18 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 					
 					Snake->Hunger(HungerTime);
 					this->GenerateFood(this);
-					
+				case 6:
+					Snake->SetActorTickInterval(Snake->MovementSpeed * 1.3);
+
+					Snake->Hunger(HungerTime);
+					this->GenerateFood(this);
+				case 7:
+					Snake->EnableNoCollision(15);
+
+					Snake->Hunger(HungerTime);
+					this->GenerateFood(this);
 			}
-			;
+			
 		}
 	}
 }

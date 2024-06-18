@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "SnakeBase.generated.h"
 
+
+class UHungerWidget;
 class ASnakeElementBase;
 class USnakeElementsShow;
 UENUM()
@@ -52,9 +54,20 @@ public:
 
 	FTimerHandle UnUsedHandle;
 
+	UPROPERTY(EditAnywhere, Category = "Hunger")
+	TSubclassOf<class UUserWidget> HungerWidgetClass;
+
+	float HungerTime;
+
 	UPROPERTY(EditDefaultsOnly)
+	float TotalHungerTime;
 
+	UPROPERTY()
+	UHungerWidget* HungerWidget;
 
+	FTimerHandle CollisionTimerHandle;
+
+	bool IsInvincibleForObtacles;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -75,5 +88,10 @@ public:
 
 	void Hunger(float time);
 	void ToDoAfterTimerOff();
+	void UpdateHungerProgress();
+	void ShowHungerWidget();
 	
+
+	void EnableNoCollision(float time);
+	void EnableOverlapAllCollision();
 };

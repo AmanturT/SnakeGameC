@@ -18,6 +18,9 @@ class PROJECTC_API AObtacle : public AActor, public IInteractable
 
 	UPROPERTY(EditDefaultsOnly)
 	bool IsObtacleImmortal;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool IsObtacleBarrier;
 public:	
 	// Sets default values for this actor's properties
 	AObtacle();

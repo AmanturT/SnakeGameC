@@ -39,7 +39,18 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 		auto Snake = Cast<ASnakeBase>(Interactor);
 		if (IsValid(Snake))
 		{
-			Snake->Destroy();
+
+			if (Snake->IsInvincibleForObtacles == false)
+			{
+				Snake->Destroy();
+			}
+			else
+			{
+				if (IsObtacleBarrier)
+				{
+					Snake->Destroy();
+				}
+			}
 		}
 	}
 }

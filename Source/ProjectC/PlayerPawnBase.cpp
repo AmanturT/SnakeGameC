@@ -6,6 +6,8 @@
 #include "SnakeBase.h"
 #include "Components/InputComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
+#include "ShowStamina.h"
 // Sets default values
 APlayerPawnBase::APlayerPawnBase()
 {
@@ -13,6 +15,7 @@ APlayerPawnBase::APlayerPawnBase()
 	PrimaryActorTick.bCanEverTick = true;
 	CameraPawn = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraPawn"));
 	RootComponent = CameraPawn;
+	IsBoosting = false;
 }
 
 // Called when the game starts or when spawned
@@ -20,6 +23,7 @@ void APlayerPawnBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetActorRotation(FRotator(-90, 0, 0));
+	CurrentBoostCount = TotalBoostCount;
 	
 }
 
@@ -27,7 +31,27 @@ void APlayerPawnBase::BeginPlay()
 void APlayerPawnBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (IsBoosting)
+	{
+		CurrentBoostCount -= 1;
+		if (CurrentBoostCount <= 0)
+		{
+			OnBoostReleased();
+			
+		}
+	
+	}
+	else
+	{
+		if (CurrentBoostCount < TotalBoostCount)
+		{
+			CurrentBoostCount += 1;
+			
+		}
+		
+		
+	}
+	UpdateStaminaProgressBar();
 }
 
 // Called to bind functionality to input
@@ -41,11 +65,15 @@ void APlayerPawnBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	PlayerInputComponent->BindAction("StartGame", IE_Pressed, this, &APlayerPawnBase::StartGame);
 	PlayerInputComponent->BindAction("StopGame", IE_Pressed, this, &APlayerPawnBase::StopGame);
+
+	PlayerInputComponent->BindAction("Boost", IE_Pressed, this, &APlayerPawnBase::OnBoostPressed);
+	PlayerInputComponent->BindAction("Boost", IE_Released, this, &APlayerPawnBase::OnBoostReleased);
 }
 
 void APlayerPawnBase::CreateSnakeActor()
 {
 	SnakeActor = GetWorld()->SpawnActor<ASnakeBase>(SnakeActorClass, FTransform());
+	ShowStaminaProgressBar();
 }
 
 void APlayerPawnBase::HandlePlayerVerticalInput(float value)
@@ -97,5 +125,61 @@ void APlayerPawnBase::StopGame()
 {
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(),0 );
 	UE_LOG(LogTemp, Error, TEXT("Input Working Stop"))
+}
+
+void APlayerPawnBase::OnBoostPressed()
+{
+	IsBoosting = true;
+	if (CurrentBoostCount != 0)
+	{
+		SnakeActor->SetActorTickInterval(SnakeActor->MovementSpeed * 0.5);
+		
+	
+	}
+
+}
+
+void APlayerPawnBase::OnBoostReleased()
+{
+	IsBoosting = false;
+	SnakeActor->SetActorTickInterval(SnakeActor->MovementSpeed);
+	if (CurrentBoostCount < TotalBoostCount)
+	{
+		
+
+	}
+	
+}
+
+void APlayerPawnBase::ShowStaminaProgressBar()
+{
+	StaminaProgressBar = CreateWidget<UShowStamina>(GetWorld(), StaminaWidgerClass);
+	if (StaminaProgressBar)
+	{
+		StaminaProgressBar->AddToViewport(1);
+	}
+}
+
+void APlayerPawnBase::UpdateStaminaProgressBar()
+{
+	if (StaminaProgressBar)
+	{
+		if (TotalBoostCount != 0)
+		{
+			float Progress = static_cast<float>(CurrentBoostCount) / static_cast<float>(TotalBoostCount);
+			float RoundedProgress = FMath::RoundToFloat(Progress * 100.0f) / 100.0f;
+			StaminaProgressBar->SetStaminaProgressBar(RoundedProgress);
+
+			
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("TotalBoostCount is zero"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("StaminaProgressBar is nullptr"));
+	}
 }
 

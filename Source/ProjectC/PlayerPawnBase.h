@@ -7,6 +7,7 @@
 #include "PlayerPawnBase.generated.h"
 class UCameraComponent;
 class ASnakeBase;
+class UShowStamina;
 UCLASS()
 
 class PROJECTC_API APlayerPawnBase : public APawn
@@ -28,7 +29,18 @@ public:
 
 	bool IsGameStarted;
     
+	UPROPERTY(EditDefaultsOnly)
+	int TotalBoostCount;
 
+	int CurrentBoostCount;
+
+	bool IsBoosting;
+
+	UShowStamina* StaminaProgressBar;
+
+
+	UPROPERTY(EditAnywhere, Category = "Stamina")
+	TSubclassOf<class UUserWidget> StaminaWidgerClass;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -53,4 +65,11 @@ public:
 	UFUNCTION()
 	void StopGame();
 
+	UFUNCTION()
+	void OnBoostPressed();
+	UFUNCTION()
+	void OnBoostReleased();
+
+	void UpdateStaminaProgressBar();
+	void ShowStaminaProgressBar();
 };
