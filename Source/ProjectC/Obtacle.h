@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interactable.h"
 #include "Obtacle.generated.h"
-
+class AGeneration;
 UCLASS()
 class PROJECTC_API AObtacle : public AActor, public IInteractable
 {
@@ -21,6 +21,11 @@ class PROJECTC_API AObtacle : public AActor, public IInteractable
 
 	UPROPERTY(EditDefaultsOnly)
 	bool IsObtacleBarrier;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool IsObtacleGameField;
+
+	AGeneration* GenerationClass;
 public:	
 	// Sets default values for this actor's properties
 	AObtacle();

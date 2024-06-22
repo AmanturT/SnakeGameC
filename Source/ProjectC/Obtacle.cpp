@@ -4,6 +4,8 @@
 #include "Obtacle.h"
 #include "SnakeBase.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Generation.h"
+#include "Kismet/GameplayStatics.h"
 // Sets default values
 AObtacle::AObtacle()
 {
@@ -39,18 +41,32 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 		auto Snake = Cast<ASnakeBase>(Interactor);
 		if (IsValid(Snake))
 		{
-
-			if (Snake->IsInvincibleForObtacles == false)
+			if (IsObtacleGameField)
 			{
-				Snake->Destroy();
+				GenerationClass = Cast<AGeneration>(UGameplayStatics::GetActorOfClass(GetWorld(), AGeneration::StaticClass()));
+				if (GenerationClass)
+				{
+					GenerationClass->CheckSnakeLocation();
+					this->Destroy();
+				}
+				
 			}
 			else
 			{
-				if (IsObtacleBarrier)
-				{
-					Snake->Destroy();
-				}
+				if (Snake->IsInvincibleForObtacles == false)
+					{
+						Snake->Destroy();
+					}
+				else
+					{
+						if (IsObtacleBarrier)
+							{
+								Snake->Destroy();
+							}
+				
+					}
 			}
+			
 		}
 	}
 }
@@ -58,14 +74,12 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 
 void AObtacle::OnDelayCompleted()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Delay completed"));
-	if (IsObtacleImmortal == true)
+	
+	if (IsObtacleImmortal == false)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("THIS OBJECT IS IMMORTAL"))
-	}
-	else {
 		this->Destroy();
 	}
+	
 	
 }
 

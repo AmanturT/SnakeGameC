@@ -42,6 +42,7 @@ void ASnakeBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	Move();
 	UpdateHungerProgress();
+	
 }
 
 void ASnakeBase::AddSnakeElement(int ElementsNum)
@@ -199,6 +200,8 @@ void ASnakeBase::EnableOverlapAllCollision()
 {
 	IsInvincibleForObtacles = false;
 }
+
+
 
 void ASnakeBase::UpdateHungerProgress()
 {

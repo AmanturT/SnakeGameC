@@ -7,12 +7,18 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/AssetData.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "SnakeElementBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "SnakeBase.h"
+
 // Sets default values
 AGeneration::AGeneration()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+    //  LastSpawnedSegmentEnd = SpawnLocation;  // Update the position of the last segment's end
+   
+  
 }
 
 // Called when the game starts or when spawned
@@ -21,16 +27,32 @@ void AGeneration::BeginPlay()
 	Super::BeginPlay();
     GetActortFromFolder("/Game/Blueprints/Obtacles/SingleObtacles", SingleObtacles);
     GenerateObtacles(SingleObtacles, countOfSingleObtacles);
-    GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
-    GenerateObtacles(Structures, countOfStructures);
+    //GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
+    //GenerateObtacles(Structures, countOfStructures);
+    GetActortFromFolder("/Game/Blueprints/Segments", GameFieldSegments);
+    SpawnNewSegment(FVector(0,0,-100));
+    
 }
 
 // Called every frame
 void AGeneration::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+  
+    if (!SnakeBaseClass)
+    {
+        FindSnake();
 
-}
+        return;
+    }
+    
+
+
+   
+        
+ }
+   
+
 
 void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacle*>& OutClasses)
 {
@@ -113,7 +135,7 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 
         while (iterator < 150 && !flag)
         {
-            NewCoords = FVector(FMath::RandRange(-1000, 1000), FMath::RandRange(-1000, 1000), 20);
+            NewCoords = FVector(FMath::RandRange(-750 + LastSpawnedSegmentEnd.X, 750 + LastSpawnedSegmentEnd.X), FMath::RandRange(-750 +LastSpawnedSegmentEnd.Y, 750 + LastSpawnedSegmentEnd.Y), 20);
             NewRotation = FRotator(0, FMath::RandRange(0, 360), 0);
             TArray<FHitResult> HitResults;
 
@@ -167,6 +189,93 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 
     // Ћогирование длины ArrayOfObtacles после завершени€ генерации
     UE_LOG(LogTemp, Warning, TEXT("Final length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
+}
+
+void AGeneration::SpawnNewSegment(FVector SpawnLocation)
+{
+    if (GameFieldSegments.Num() > 1)
+    {
+        // 1% chance for first segment, 99% chance for second segment
+        AObtacle* SegmentToSpawn;
+        if (FMath::FRand() <= 0.01f)
+        {
+            SegmentToSpawn = GameFieldSegments[0];
+        }
+        else
+        {
+            SegmentToSpawn = GameFieldSegments[1];
+        }
+        if (!SegmentToSpawn)
+        {
+            UE_LOG(LogTemp, Error, TEXT("GeneratingObtacle is null before spawning"));
+            
+        }
+        FActorSpawnParameters SpawnParams;
+        AObtacle* SpawnedSegment = GetWorld()->SpawnActor<AObtacle>(SegmentToSpawn->GetClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+
+        if (SpawnedSegment)
+        {
+            // Update the end location of the last spawned segment
+            LastSpawnedSegmentEnd = SpawnLocation;  // Update the position of the last segment's end
+            UE_LOG(LogTemp, Error, TEXT("Spawned %d"), GameFieldSegments.Num());
+            GenerateObtacles(SingleObtacles, countOfSingleObtacles);
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Segments !> 1 %d"), GameFieldSegments.Num());
+    }
+}
+
+void AGeneration::CheckSnakeLocation()
+{
+       if (!SnakeBaseClass || SnakeBaseClass->SnakeElements.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("SnakeBaseClass is nullptr or SnakeElements is empty in CheckSnakeLocation"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("SnakeBaseClass is valid in CheckSnakeLocation"));
+
+    FVector SnakeLocation = SnakeBaseClass->SnakeElements[0]->GetActorLocation();
+    FVector PossibleNewLocations[4] = {
+        LastSpawnedSegmentEnd + FVector(SegmentSize.X / 2, 0, 0),  // Right
+        LastSpawnedSegmentEnd - FVector(SegmentSize.X / 2, 0, 0),  // Left
+        LastSpawnedSegmentEnd + FVector(0, SegmentSize.Y / 2, 0),  // Top
+        LastSpawnedSegmentEnd - FVector(0, SegmentSize.Y / 2, 0)   // Bottom
+    };
+
+    float Distances[4] = {
+        FVector::Dist(SnakeLocation, PossibleNewLocations[0]),
+        FVector::Dist(SnakeLocation, PossibleNewLocations[1]),
+        FVector::Dist(SnakeLocation, PossibleNewLocations[2]),
+        FVector::Dist(SnakeLocation, PossibleNewLocations[3])
+    };
+
+    UE_LOG(LogTemp, Warning, TEXT("Checking snake location..."));
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (Distances[i] <= 300)
+        {
+            SpawnNewSegment(PossibleNewLocations[i]);
+            break;
+        }
+    }
+  
+}
+
+void AGeneration::FindSnake()
+{
+    SnakeBaseClass = Cast<ASnakeBase>(UGameplayStatics::GetActorOfClass(GetWorld(), ASnakeBase::StaticClass()));
+    if (SnakeBaseClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Snake found!"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Snake not found."));
+    }
 }
 
 

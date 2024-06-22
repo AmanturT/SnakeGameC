@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "ShowStamina.h"
+#include "SnakeElementBase.h"
 // Sets default values
 APlayerPawnBase::APlayerPawnBase()
 {
@@ -16,6 +17,7 @@ APlayerPawnBase::APlayerPawnBase()
 	CameraPawn = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraPawn"));
 	RootComponent = CameraPawn;
 	IsBoosting = false;
+	
 }
 
 // Called when the game starts or when spawned
@@ -52,6 +54,11 @@ void APlayerPawnBase::Tick(float DeltaTime)
 		
 	}
 	UpdateStaminaProgressBar();
+	if (SnakeActor)
+	{
+		FVector SnakeLocation = SnakeActor->SnakeElements[0]->GetActorLocation();
+		CameraPawn->SetWorldLocation(FVector(SnakeLocation.X,SnakeLocation.Y,300));
+	}
 }
 
 // Called to bind functionality to input
@@ -160,6 +167,8 @@ void APlayerPawnBase::ShowStaminaProgressBar()
 	}
 }
 
+
+
 void APlayerPawnBase::UpdateStaminaProgressBar()
 {
 	if (StaminaProgressBar)
@@ -172,14 +181,8 @@ void APlayerPawnBase::UpdateStaminaProgressBar()
 
 			
 		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("TotalBoostCount is zero"));
-		}
+		
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("StaminaProgressBar is nullptr"));
-	}
+	
 }
 

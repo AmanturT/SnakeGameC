@@ -72,4 +72,5 @@ public:
 
 	void UpdateStaminaProgressBar();
 	void ShowStaminaProgressBar();
+
 };

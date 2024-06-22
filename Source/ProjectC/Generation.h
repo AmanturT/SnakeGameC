@@ -7,7 +7,7 @@
 #include "Generation.generated.h"
 
 class AObtacle;
-class AFood;
+class ASnakeBase;
 UCLASS()
 class PROJECTC_API AGeneration : public AActor
 {
@@ -19,13 +19,19 @@ public:
 
 	TArray<AObtacle*> SingleObtacles;
 	TArray<AObtacle*> Structures;
-	TArray<AFood*> Foods;
+	TArray<AObtacle*> GameFieldSegments;
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfSingleObtacles;
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfStructures;
+
+
+	FVector LastSpawnedSegmentEnd;
+	FVector SegmentSize = FVector(800, 800, 0);  
+
+	ASnakeBase* SnakeBaseClass;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,4 +44,11 @@ public:
 	void GetActortFromFolder(const FString& WhichFolder,TArray<AObtacle*>& OutClasses);
 
 	void GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count);
+
+	void SpawnNewSegment(FVector SpawnLocation);
+
+	void CheckSnakeLocation();
+
+	void FindSnake();
+
 };
