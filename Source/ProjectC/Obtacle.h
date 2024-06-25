@@ -26,6 +26,14 @@ class PROJECTC_API AObtacle : public AActor, public IInteractable
 	bool IsObtacleGameField;
 
 	AGeneration* GenerationClass;
+
+
+	float CurrentLifeTime;
+	FTimerHandle LifeTimeTimerHandle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UTextRenderComponent* LifeTimeTextComponent;
+	
 public:	
 	// Sets default values for this actor's properties
 	AObtacle();
@@ -43,4 +51,6 @@ public:
 	
 	UFUNCTION()
 	void OnDelayCompleted();
+	void UpdateLifeTimeText();
+	void LifeTimeTick();
 };

@@ -6,25 +6,35 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Generation.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/TextRenderComponent.h"
 // Sets default values
 AObtacle::AObtacle()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
 
+	LifeTimeTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LifeTimeTextComponent"));
+	LifeTimeTextComponent->AttachToComponent(nullptr, FAttachmentTransformRules::KeepRelativeTransform);
+	LifeTimeTextComponent->SetHorizontalAlignment(EHTA_Center);
+	LifeTimeTextComponent->SetWorldSize(25); // Регулируйте размер текста по необходимости
+
+	// Смещение текста, чтобы он был над препятствием
+	 // Регулируйте по необходимости
+
+	LifeTimeTextComponent->SetWorldRotation(FRotator(-90.0f, 0, 0));
 }
+
+
 
 // Called when the game starts or when spawned
 void AObtacle::BeginPlay()
 {
 	Super::BeginPlay();
-	FLatentActionInfo LatentInfo;
-	LatentInfo.CallbackTarget = this;
-	LatentInfo.ExecutionFunction = FName("OnDelayCompleted");
-	LatentInfo.Linkage = 0;
-	LatentInfo.UUID = FMath::Rand();
-	UKismetSystemLibrary::Delay(this, LifeTimeOfObtacle, LatentInfo);
+	CurrentLifeTime = LifeTimeOfObtacle;
+
+	GetWorldTimerManager().SetTimer(LifeTimeTimerHandle, this, &AObtacle ::LifeTimeTick, 1, true);
+
+	UpdateLifeTimeText();
 }
 
 // Called every frame
@@ -77,9 +87,31 @@ void AObtacle::OnDelayCompleted()
 	
 	if (IsObtacleImmortal == false)
 	{
+		GetWorldTimerManager().ClearTimer(LifeTimeTimerHandle);
 		this->Destroy();
 	}
 	
 	
+}
+
+void AObtacle::UpdateLifeTimeText()
+{
+	if (LifeTimeTextComponent)
+	{
+		LifeTimeTextComponent->SetText(FText::AsNumber(static_cast<int32>(CurrentLifeTime)));
+	}
+}
+
+void AObtacle::LifeTimeTick()
+{
+	if (CurrentLifeTime > 0)
+	{
+		CurrentLifeTime -= 1;
+		UpdateLifeTimeText();
+	}
+	else
+	{
+		OnDelayCompleted();
+	}
 }
 
