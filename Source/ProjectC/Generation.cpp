@@ -30,7 +30,7 @@ void AGeneration::BeginPlay()
     //GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
     //GenerateObtacles(Structures, countOfStructures);
     GetActortFromFolder("/Game/Blueprints/Segments", GameFieldSegments);
-    SpawnNewSegment(FVector(0,0,-100));
+    SpawnNewSegment(FVector(0,0,-75));
     
 }
 
@@ -135,7 +135,7 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 
         while (iterator < 150 && !flag)
         {
-            NewCoords = FVector(FMath::RandRange(-750 + LastSpawnedSegmentEnd.X, 750 + LastSpawnedSegmentEnd.X), FMath::RandRange(-750 +LastSpawnedSegmentEnd.Y, 750 + LastSpawnedSegmentEnd.Y), 20);
+            NewCoords = FVector(FMath::RandRange(-2000 + LastSpawnedSegmentEnd.X, 2000 + LastSpawnedSegmentEnd.X), FMath::RandRange(-2000 +LastSpawnedSegmentEnd.Y, 2000 + LastSpawnedSegmentEnd.Y), 20);
             NewRotation = FRotator(0, FMath::RandRange(0, 360), 0);
             TArray<FHitResult> HitResults;
 
@@ -193,18 +193,11 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 
 void AGeneration::SpawnNewSegment(FVector SpawnLocation)
 {
-    if (GameFieldSegments.Num() > 1)
+    if (GameFieldSegments.Num() != 0)
     {
         // 1% chance for first segment, 99% chance for second segment
         AObtacle* SegmentToSpawn;
-        if (FMath::FRand() <= 0.01f)
-        {
-            SegmentToSpawn = GameFieldSegments[0];
-        }
-        else
-        {
-            SegmentToSpawn = GameFieldSegments[1];
-        }
+        SegmentToSpawn = GameFieldSegments[0];
         if (!SegmentToSpawn)
         {
             UE_LOG(LogTemp, Error, TEXT("GeneratingObtacle is null before spawning"));
@@ -229,7 +222,7 @@ void AGeneration::SpawnNewSegment(FVector SpawnLocation)
 
 void AGeneration::CheckSnakeLocation()
 {
-       if (!SnakeBaseClass || SnakeBaseClass->SnakeElements.Num() == 0)
+    if (!SnakeBaseClass || SnakeBaseClass->SnakeElements.Num() == 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("SnakeBaseClass is nullptr or SnakeElements is empty in CheckSnakeLocation"));
         return;
@@ -252,13 +245,29 @@ void AGeneration::CheckSnakeLocation()
         FVector::Dist(SnakeLocation, PossibleNewLocations[3])
     };
 
-    UE_LOG(LogTemp, Warning, TEXT("Checking snake location..."));
-
     for (int i = 0; i < 4; i++)
     {
-        if (Distances[i] <= 300)
+        if (Distances[i] <= 1000)
         {
-            SpawnNewSegment(PossibleNewLocations[i]);
+            FVector NewSpawnLocation = LastSpawnedSegmentEnd;
+
+            switch (i)
+            {
+            case 0: // Right
+                NewSpawnLocation.X += 1000;
+                break;
+            case 1: // Left
+                NewSpawnLocation.X -= 1000;
+                break;
+            case 2: // Top
+                NewSpawnLocation.Y += 1000;
+                break;
+            case 3: // Bottom
+                NewSpawnLocation.Y -= 1000;
+                break;
+            }
+
+            SpawnNewSegment(NewSpawnLocation);
             break;
         }
     }

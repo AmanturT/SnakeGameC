@@ -29,7 +29,7 @@ public:
 
 
 	FVector LastSpawnedSegmentEnd;
-	FVector SegmentSize = FVector(800, 800, 0);  
+	FVector SegmentSize = FVector(2000, 2000, 0);
 
 	ASnakeBase* SnakeBaseClass;
 protected:

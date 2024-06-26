@@ -12,16 +12,18 @@ AObtacle::AObtacle()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	LifeTimeTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LifeTimeTextComponent"));
-	LifeTimeTextComponent->AttachToComponent(nullptr, FAttachmentTransformRules::KeepRelativeTransform);
-	LifeTimeTextComponent->SetHorizontalAlignment(EHTA_Center);
-	LifeTimeTextComponent->SetWorldSize(25); // Регулируйте размер текста по необходимости
+	
+		LifeTimeTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LifeTimeTextComponent"));
+		LifeTimeTextComponent->AttachToComponent(nullptr, FAttachmentTransformRules::KeepRelativeTransform);
+		LifeTimeTextComponent->SetHorizontalAlignment(EHTA_Center);
+		LifeTimeTextComponent->SetWorldSize(25); // Регулируйте размер текста по необходимости
+	
+	
 
 	// Смещение текста, чтобы он был над препятствием
 	 // Регулируйте по необходимости
 
-	LifeTimeTextComponent->SetWorldRotation(FRotator(-90.0f, 0, 0));
+
 }
 
 
@@ -30,11 +32,15 @@ AObtacle::AObtacle()
 void AObtacle::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentLifeTime = LifeTimeOfObtacle;
-
-	GetWorldTimerManager().SetTimer(LifeTimeTimerHandle, this, &AObtacle ::LifeTimeTick, 1, true);
-
-	UpdateLifeTimeText();
+	
+	if (!IsObtacleGameField || !IsObtacleImmortal)
+	{
+		GetWorldTimerManager().SetTimer(LifeTimeTimerHandle, this, &AObtacle ::LifeTimeTick, 1, true);
+		
+		UpdateLifeTimeText();
+		CurrentLifeTime = LifeTimeOfObtacle;
+	}
+	
 }
 
 // Called every frame
@@ -56,10 +62,16 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 				GenerationClass = Cast<AGeneration>(UGameplayStatics::GetActorOfClass(GetWorld(), AGeneration::StaticClass()));
 				if (GenerationClass)
 				{
-					GenerationClass->CheckSnakeLocation();
 					this->Destroy();
+					GenerationClass->CheckSnakeLocation();
+					
+					UE_LOG(LogTemp, Error, TEXT("GENCLASS INS valid"));
 				}
-				
+				else
+				{ 
+					UE_LOG(LogTemp, Error, TEXT("GENCLASS INS NULL"));
+				}
+				UE_LOG(LogTemp, Error, TEXT("obt is  game field"));
 			}
 			else
 			{
@@ -75,10 +87,12 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 							}
 				
 					}
+				UE_LOG(LogTemp, Error, TEXT("obt is not game field"));
 			}
 			
 		}
 	}
+	UE_LOG(LogTemp, Error, TEXT("intected"));
 }
 
 
