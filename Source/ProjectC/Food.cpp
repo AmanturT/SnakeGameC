@@ -7,12 +7,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/AssetData.h"
+#include "Generation.h"
+#include "Components/TextRenderComponent.h"
 // Sets default values
 AFood::AFood()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
+	LifeTimeTextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LifeTimeTextComponent"));
+	LifeTimeTextComponent->AttachToComponent(nullptr, FAttachmentTransformRules::KeepRelativeTransform);
+	LifeTimeTextComponent->SetHorizontalAlignment(EHTA_Center);
+	LifeTimeTextComponent->SetWorldSize(25); // Регулируйте размер текста по необходимости
+
 }
 
 // Called when the game starts or when spawned
@@ -22,13 +29,17 @@ void AFood::BeginPlay()
 	if (IsGeneratingBlueprint == true)
 	{
 		GetActortFromFolder("/Game/Blueprints/FoodTypes", FoodLoadedArray);
-			for (int i = 0; i <= CountOfGeneratingFood; i++)
-			{
-				GenerateFood(GetRandomFoodType());
-				UE_LOG(LogTemp, Error, TEXT("Begin Play loop is working"));
-			}
+		
 	}
-	
+	GenerationClass = Cast<AGeneration>(UGameplayStatics::GetActorOfClass(GetWorld(), AGeneration::StaticClass()));
+
+
+	GetWorldTimerManager().SetTimer(LifeTimeTimerHandle, this, &AFood::LifeTimeTick, 1, true);
+
+	UpdateLifeTimeText();
+	CurrentLifeTime = LifeTimeOfFood;
+
+
 }
 
 // Called every frame
@@ -121,42 +132,48 @@ void AFood::GenerateFood(AFood* WhichFoodType)
 	UWorld* World = GetWorld();
 	FActorSpawnParameters SpawnParams;
 	
-	
-	while (iterator < 150 && !flag)
+	if (GenerationClass)
 	{
-		NewCoords = FVector(FMath::RandRange(-1000, 1000), FMath::RandRange(-1000, 1000), 20);
-		TArray<FHitResult> HitResults;
-
-		UKismetSystemLibrary::SphereTraceMulti(World, NewCoords, NewCoords, radius, sphereTraceQuery, false,
-			ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResults, true,
-			FLinearColor::Green, FLinearColor::Red, drawTime);
-
-		if (HitResults.Num() == 0)
-		{
-			if (this->id == 0)
+		while (iterator < 150 && !flag)
 			{
-				if (!IsNewCoordsInSnakeSpawn(NewCoords.X, NewCoords.Y, 100))
+				NewCoords = FVector(FMath::RandRange(-2000 + GenerationClass->LastSpawnedSegmentEnd.X, 2000 + GenerationClass->LastSpawnedSegmentEnd.X), FMath::RandRange(-2000 + GenerationClass->LastSpawnedSegmentEnd.Y, 2000 + GenerationClass->LastSpawnedSegmentEnd.Y), 20);
+				TArray<FHitResult> HitResults;
+
+				UKismetSystemLibrary::SphereTraceMulti(World, NewCoords, NewCoords, radius, sphereTraceQuery, false,
+					ActorsToIgnore, EDrawDebugTrace::ForOneFrame, HitResults, true,
+					FLinearColor::Green, FLinearColor::Red, drawTime);
+
+				if (HitResults.Num() == 0)
 				{
-					UClass* FoodClass = WhichFoodType->GetClass();
-					AFood* SpawningFood = World->SpawnActor<AFood>(FoodClass,NewCoords,{0,0,0},SpawnParams);
-					UE_LOG(LogTemp, Error, TEXT("Spawned"));
-				}
+					if (this->id == 0)
+					{
+						if (!IsNewCoordsInSnakeSpawn(NewCoords.X, NewCoords.Y, 100))
+						{
+							UClass* FoodClass = WhichFoodType->GetClass();
+							AFood* SpawningFood = World->SpawnActor<AFood>(FoodClass,NewCoords,{0,0,0},SpawnParams);
+							UE_LOG(LogTemp, Error, TEXT("Spawned"));
+						}
 				
-			}
-			else
-			{
-				this->SetActorLocation(NewCoords);
-				UE_LOG(LogTemp, Error, TEXT("Location Changer"));
+					}
+					else
+					{
+						this->SetActorLocation(NewCoords);
+						UE_LOG(LogTemp, Error, TEXT("Location Changer"));
+
+					}
+					flag = true;
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Hit resutl ponos"));
+				}
+				iterator++;
 
 			}
-			flag = true;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Hit resutl ponos"));
-		}
-		iterator++;
-
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GenClass is null"));
 	}
 }
 
@@ -178,6 +195,35 @@ bool AFood::IsNewCoordsInSnakeSpawn(float pointX, float pointY, float sideLength
 	else
 	{
 		return false;
+	}
+}
+
+void AFood::DestroyFood()
+{
+	
+		GetWorldTimerManager().ClearTimer(LifeTimeTimerHandle);
+		this->Destroy();
+	
+}
+
+void AFood::UpdateLifeTimeText()
+{
+	if (LifeTimeTextComponent)
+	{
+		LifeTimeTextComponent->SetText(FText::AsNumber(static_cast<int32>(CurrentLifeTime)));
+	}
+}
+
+void AFood::LifeTimeTick()
+{
+	if (CurrentLifeTime > 0)
+	{
+		CurrentLifeTime -= 1;
+		UpdateLifeTimeText();
+	}
+	else
+	{
+		DestroyFood();
 	}
 }
 

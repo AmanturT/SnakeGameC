@@ -96,7 +96,7 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 }
 
 
-void AObtacle::OnDelayCompleted()
+void AObtacle::DestroyObtacle()
 {
 	
 	if (IsObtacleImmortal == false)
@@ -125,7 +125,7 @@ void AObtacle::LifeTimeTick()
 	}
 	else
 	{
-		OnDelayCompleted();
+		DestroyObtacle();
 	}
 }
 

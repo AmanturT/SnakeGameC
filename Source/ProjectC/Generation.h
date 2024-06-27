@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Generation.generated.h"
 
+
+class AFood;
 class AObtacle;
 class ASnakeBase;
 UCLASS()
@@ -32,6 +34,11 @@ public:
 	FVector SegmentSize = FVector(2000, 2000, 0);
 
 	ASnakeBase* SnakeBaseClass;
+
+	AFood* FoodClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	int CountOfGeneratingFood;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

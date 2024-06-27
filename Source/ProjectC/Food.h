@@ -8,8 +8,9 @@
 #include "Interactable.h"
 #include "Food.generated.h"
 
-
+class AGeneration;
 UCLASS()
+
 class PROJECTC_API AFood : public AActor, public IInteractable
 {
 	GENERATED_BODY()
@@ -31,7 +32,20 @@ class PROJECTC_API AFood : public AActor, public IInteractable
 	bool IsGeneratingBlueprint;
 
 	
+	AGeneration* GenerationClass;
+	
 	TArray<AFood*> FoodLoadedArray;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	float LifeTimeOfFood;
+
+	float CurrentLifeTime;
+	FTimerHandle LifeTimeTimerHandle;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UTextRenderComponent* LifeTimeTextComponent;
 public:	
 	// Sets default values for this actor's properties
 	AFood();
@@ -55,4 +69,9 @@ public:
 	AFood* GetRandomFoodType();
 	//Проверка не находится ли будущая еда в месте спавна змейки
 	bool IsNewCoordsInSnakeSpawn(float pointX, float pointY, float sideLength);
+
+	UFUNCTION()
+	void DestroyFood();
+	void UpdateLifeTimeText();
+	void LifeTimeTick();
 };

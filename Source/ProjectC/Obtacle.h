@@ -50,7 +50,7 @@ public:
 
 	
 	UFUNCTION()
-	void OnDelayCompleted();
+	void DestroyObtacle();
 	void UpdateLifeTimeText();
 	void LifeTimeTick();
 };

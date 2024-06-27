@@ -10,7 +10,7 @@
 #include "SnakeElementBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "SnakeBase.h"
-
+#include "Food.h"
 // Sets default values
 AGeneration::AGeneration()
 {
@@ -31,7 +31,8 @@ void AGeneration::BeginPlay()
     //GenerateObtacles(Structures, countOfStructures);
     GetActortFromFolder("/Game/Blueprints/Segments", GameFieldSegments);
     SpawnNewSegment(FVector(0,0,-75));
-    
+    FoodClass = Cast<AFood>(UGameplayStatics::GetActorOfClass(GetWorld(), AFood::StaticClass()));
+   
 }
 
 // Called every frame
@@ -212,6 +213,18 @@ void AGeneration::SpawnNewSegment(FVector SpawnLocation)
             LastSpawnedSegmentEnd = SpawnLocation;  // Update the position of the last segment's end
             UE_LOG(LogTemp, Error, TEXT("Spawned %d"), GameFieldSegments.Num());
             GenerateObtacles(SingleObtacles, countOfSingleObtacles);
+            if (FoodClass)
+            {
+                for (int i = 0; i <= CountOfGeneratingFood; i++)
+                     {
+                        FoodClass->GenerateFood(FoodClass->GetRandomFoodType());
+                        UE_LOG(LogTemp, Error, TEXT("Begin Play loop is working"));
+                     }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("FoodClass is null"));
+            }
         }
     }
     else
