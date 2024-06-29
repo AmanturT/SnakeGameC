@@ -258,31 +258,44 @@ void AGeneration::CheckSnakeLocation()
         FVector::Dist(SnakeLocation, PossibleNewLocations[3])
     };
 
+    float MinDistance = FLT_MAX;
+    int MinIndex = -1;
+
+    // Находим минимальное значение и его индекс
     for (int i = 0; i < 4; i++)
     {
-        if (Distances[i] <= 1000)
+        if (Distances[i] < MinDistance)
         {
-            FVector NewSpawnLocation = LastSpawnedSegmentEnd;
+            MinDistance = Distances[i];
+            MinIndex = i;
+        }
 
-            switch (i)
-            {
-            case 0: // Right
-                NewSpawnLocation.X += 1000;
-                break;
-            case 1: // Left
-                NewSpawnLocation.X -= 1000;
-                break;
-            case 2: // Top
-                NewSpawnLocation.Y += 1000;
-                break;
-            case 3: // Bottom
-                NewSpawnLocation.Y -= 1000;
-                break;
-            }
+        // Выводим значение Distances[i] в лог
+        UE_LOG(LogTemp, Warning, TEXT("Distances[%d] = %f"), i, Distances[i]);
+    }
 
-            SpawnNewSegment(NewSpawnLocation);
+    // Проверяем найденный минимальный индекс
+    if (MinIndex != -1)
+    {
+        FVector NewSpawnLocation = LastSpawnedSegmentEnd;
+
+        switch (MinIndex)
+        {
+        case 0: // Right
+            NewSpawnLocation.X += 1000;
+            break;
+        case 1: // Left
+            NewSpawnLocation.X -= 1000;
+            break;
+        case 2: // Top
+            NewSpawnLocation.Y += 1000;
+            break;
+        case 3: // Bottom
+            NewSpawnLocation.Y -= 1000;
             break;
         }
+
+        SpawnNewSegment(NewSpawnLocation);
     }
   
 }

@@ -33,26 +33,30 @@ void APlayerPawnBase::BeginPlay()
 void APlayerPawnBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (IsBoosting)
+	if (!IsGameStopped)
 	{
-		CurrentBoostCount -= 1;
-		if (CurrentBoostCount <= 0)
-		{
-			OnBoostReleased();
+		if (IsBoosting)
+			{
+				CurrentBoostCount -= 1;
+				if (CurrentBoostCount <= 0)
+				{
+					OnBoostReleased();
 			
-		}
+				}
 	
-	}
-	else
-	{
-		if (CurrentBoostCount < TotalBoostCount)
-		{
-			CurrentBoostCount += 1;
+			}
+			else
+			{
+				if (CurrentBoostCount < TotalBoostCount)
+				{
+					CurrentBoostCount += 1;
 			
-		}
+				}
 		
 		
+			}
 	}
+	
 	UpdateStaminaProgressBar();
 	if (SnakeActor)
 	{
@@ -126,12 +130,15 @@ void APlayerPawnBase::StartGame()
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1);
 		UE_LOG(LogTemp, Error, TEXT("Input Working Start2"))
 	}
+
+	IsGameStopped = false;
 }
 
 void APlayerPawnBase::StopGame()
 {
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(),0 );
-	UE_LOG(LogTemp, Error, TEXT("Input Working Stop"))
+	UE_LOG(LogTemp, Error, TEXT("Input Working StopGame"))
+		IsGameStopped = true;
 }
 
 void APlayerPawnBase::OnBoostPressed()

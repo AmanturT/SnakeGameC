@@ -151,21 +151,21 @@ void AFood::GenerateFood(AFood* WhichFoodType)
 						{
 							UClass* FoodClass = WhichFoodType->GetClass();
 							AFood* SpawningFood = World->SpawnActor<AFood>(FoodClass,NewCoords,{0,0,0},SpawnParams);
-							UE_LOG(LogTemp, Error, TEXT("Spawned"));
+							
 						}
 				
 					}
 					else
 					{
 						this->SetActorLocation(NewCoords);
-						UE_LOG(LogTemp, Error, TEXT("Location Changer"));
+						
 
 					}
 					flag = true;
 				}
 				else
 				{
-					UE_LOG(LogTemp, Error, TEXT("Hit resutl ponos"));
+					
 				}
 				iterator++;
 
@@ -173,14 +173,14 @@ void AFood::GenerateFood(AFood* WhichFoodType)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("GenClass is null"));
+	
 	}
 }
 
 AFood* AFood::GetRandomFoodType()
 {
 	AFood* GeneratingFood = FoodLoadedArray[FMath::RandRange(0, FoodLoadedArray.Num() - 1)];
-	UE_LOG(LogTemp, Warning, TEXT("Name of Food: %s"), *GeneratingFood->GetName());
+
 	return GeneratingFood;
 }
 

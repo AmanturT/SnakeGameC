@@ -41,6 +41,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Stamina")
 	TSubclassOf<class UUserWidget> StaminaWidgerClass;
+
+
+	float IsGameStopped;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -72,5 +75,5 @@ public:
 
 	void UpdateStaminaProgressBar();
 	void ShowStaminaProgressBar();
-
+    
 };
