@@ -27,8 +27,8 @@ void AGeneration::BeginPlay()
 	Super::BeginPlay();
     GetActortFromFolder("/Game/Blueprints/Obtacles/SingleObtacles", SingleObtacles);
     GenerateObtacles(SingleObtacles, countOfSingleObtacles);
-    //GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
-    //GenerateObtacles(Structures, countOfStructures);
+    GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
+    GenerateObtacles(Structures, countOfStructures);
     GetActortFromFolder("/Game/Blueprints/Segments", GameFieldSegments);
     SpawnNewSegment(FVector(0,0,-75));
     FoodClass = Cast<AFood>(UGameplayStatics::GetActorOfClass(GetWorld(), AFood::StaticClass()));
@@ -213,6 +213,7 @@ void AGeneration::SpawnNewSegment(FVector SpawnLocation)
             LastSpawnedSegmentEnd = SpawnLocation;  // Update the position of the last segment's end
             UE_LOG(LogTemp, Error, TEXT("Spawned %d"), GameFieldSegments.Num());
             GenerateObtacles(SingleObtacles, countOfSingleObtacles);
+            GenerateObtacles(Structures, countOfStructures);
             if (FoodClass)
             {
                 for (int i = 0; i <= CountOfGeneratingFood; i++)
