@@ -62,19 +62,19 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 					Snake->AddSnakeElement(1);
 				
 					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					this->Destroy();
 					break;
 				case 2:
 					Snake->AddSnakeElement(2);
 					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					this->Destroy();
 					break;
 				case 3:
 					if (Snake->SnakeElements.Num() > 1)
 					{
 						Snake->RemoveSnakeElement(1);
 						Snake->Hunger(HungerTime);
-						this->GenerateFood(this);
+						this->Destroy();
 					}
 					else
 					{
@@ -87,28 +87,29 @@ void AFood::Interact(AActor* Interactor, bool bIsHead)
 					{
 						Snake->RemoveSnakeElement(2);
 						Snake->Hunger(HungerTime);
-						this->GenerateFood(this);
+						this->Destroy();
 					}
 					else
 					{
 						Snake->Destroy();
+						this->Destroy();
 					}
 					break;
 				case 5:
 					Snake->SetActorTickInterval(Snake->MovementSpeed * 0.7);
 					
 					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					this->Destroy();
 				case 6:
 					Snake->SetActorTickInterval(Snake->MovementSpeed * 1.3);
 
 					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					this->Destroy();
 				case 7:
 					Snake->EnableNoCollision(15);
 
 					Snake->Hunger(HungerTime);
-					this->GenerateFood(this);
+					this->Destroy();
 			}
 			
 		}
