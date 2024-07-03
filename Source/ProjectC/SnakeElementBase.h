@@ -24,6 +24,12 @@ public:
 
 	UPROPERTY()
 	ASnakeBase* SnakeOwner;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	UStaticMeshComponent* AdditionalMeshComponent; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	UStaticMesh* AdditionalMesh; 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

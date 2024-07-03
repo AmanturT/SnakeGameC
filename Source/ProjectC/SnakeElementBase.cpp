@@ -11,6 +11,17 @@ ASnakeElementBase::ASnakeElementBase()
 	PrimaryActorTick.bCanEverTick = true;
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+
+	AdditionalMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AdditionalMeshComponent"));
+	AdditionalMeshComponent->SetupAttachment(MeshComponent);
+	AdditionalMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("StaticMesh'/Game/Meshes/SnakeHat/SimpleCrown.SimpleCrown'"));
+	if (MeshAsset.Succeeded())
+	{
+		AdditionalMesh = MeshAsset.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +40,18 @@ void ASnakeElementBase::Tick(float DeltaTime)
 void ASnakeElementBase::SetFirstElementType_Implementation()
 {
 	MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &ASnakeElementBase::HandleBeginOverlap);
+	UE_LOG(LogTemp, Error, TEXT("Func is work"));
+	if (AdditionalMesh)
+	{
+		AdditionalMeshComponent->SetStaticMesh(AdditionalMesh);
+		AdditionalMeshComponent->SetRelativeLocation(FVector(0, 0, 100)); 
+		AdditionalMeshComponent->SetRelativeScale3D(FVector(40, 40, 40));
+		UE_LOG(LogTemp, Error, TEXT("Mesh not null"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Mesh null"));
+	}
 }
 
 void ASnakeElementBase::Interact(AActor* Interactor, bool bIsHead)

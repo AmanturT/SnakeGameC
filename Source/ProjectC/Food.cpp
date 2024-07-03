@@ -187,7 +187,7 @@ AFood* AFood::GetRandomFoodType()
 
 bool AFood::IsNewCoordsInSnakeSpawn(float pointX, float pointY, float sideLength)
 {
-	//Если что то из ниже не выполняется значит корды нормальные
+	
 	float halfSide = sideLength / 2.0f;
 	if (pointX >= -halfSide && pointX <= halfSide && pointY >= -halfSide && pointY <= halfSide)
 	{
@@ -232,13 +232,13 @@ void AFood::LifeTimeTick()
 void AFood::GetActortFromFolder(const FString& WhichFolder, TArray<AFood*>& OutClasses)
 {
 
-	// Получаем доступ к AssetRegistryModule
+	
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
-	// Получаем доступ к IAssetRegistry классу для выполнения запросов к ассетам
+
 	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
 
-	// Создаем фильтр для ассетов в указанной папке
+	
 
 	FARFilter AssetFilter;
 	FName FolderPathName = FName(*WhichFolder);
@@ -246,14 +246,13 @@ void AFood::GetActortFromFolder(const FString& WhichFolder, TArray<AFood*>& OutC
 	AssetFilter.bRecursivePaths = true;
 	AssetFilter.bRecursiveClasses = true;
 
-	// Запрашиваем ассеты с помощью фильтра
+	
 	TArray<FAssetData> AssetDataList;
 	AssetRegistry.GetAssets(AssetFilter, AssetDataList);
 
 
 
 
-	// Iterate over the assets and load the classes
 	for (const FAssetData& AssetData : AssetDataList)
 	{
 		if (UBlueprint* Blueprint = Cast<UBlueprint>(AssetData.GetAsset()))
@@ -266,7 +265,7 @@ void AFood::GetActortFromFolder(const FString& WhichFolder, TArray<AFood*>& OutC
 					OutClasses.Add(DefaultObject);
 					
 
-					// Вывод длины OutClasses после добавления элемента
+				
 				
 
 				}

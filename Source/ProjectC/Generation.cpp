@@ -26,9 +26,7 @@ void AGeneration::BeginPlay()
 {
 	Super::BeginPlay();
     GetActortFromFolder("/Game/Blueprints/Obtacles/SingleObtacles", SingleObtacles);
-    GenerateObtacles(SingleObtacles, countOfSingleObtacles);
-    GetActortFromFolder("/Game/Blueprints/Obtacles/Structures", Structures);
-    GenerateObtacles(Structures, countOfStructures);
+   
     GetActortFromFolder("/Game/Blueprints/Segments", GameFieldSegments);
     SpawnNewSegment(FVector(0,0,-75));
     FoodClass = Cast<AFood>(UGameplayStatics::GetActorOfClass(GetWorld(), AFood::StaticClass()));
@@ -58,13 +56,12 @@ void AGeneration::Tick(float DeltaTime)
 void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacle*>& OutClasses)
 {
     
-    // Получаем доступ к AssetRegistryModule
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 
-    // Получаем доступ к IAssetRegistry классу для выполнения запросов к ассетам
+  
     IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
 
-    // Создаем фильтр для ассетов в указанной папке
+    
   
     FARFilter AssetFilter;
     FName FolderPathName = FName(*WhichFolder);
@@ -72,14 +69,14 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
     AssetFilter.bRecursivePaths = true;
     AssetFilter.bRecursiveClasses = true;
 
-    // Запрашиваем ассеты с помощью фильтра
+    
     TArray<FAssetData> AssetDataList;
     AssetRegistry.GetAssets(AssetFilter, AssetDataList);
     UE_LOG(LogTemp, Warning, TEXT("Number of assets found: %d"), AssetDataList.Num());
    
 
 
-    // Iterate over the assets and load the classes
+ 
     for (const FAssetData& AssetData : AssetDataList)
     {
         if (UBlueprint* Blueprint = Cast<UBlueprint>(AssetData.GetAsset()))
@@ -92,7 +89,7 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
                     OutClasses.Add(DefaultObject);
                     UE_LOG(LogTemp, Error, TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
 
-                    // Вывод длины OutClasses после добавления элемента
+                   
                     UE_LOG(LogTemp, Warning, TEXT("OutClasses length: %d"), SingleObtacles.Num());
                     
                 }
@@ -120,7 +117,7 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
     AObtacle* GeneratingObtacle = nullptr;
     UWorld* World = GetWorld();
     FRotator NewRotation;
-    // Логирование длины ArrayOfObtacles до начала генерации
+ 
     UE_LOG(LogTemp, Warning, TEXT("Initial length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
 
     if (!World)
@@ -150,29 +147,28 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
                 {
                     GeneratingObtacle = ArrayOfObtacles[FMath::RandRange(0, ArrayOfObtacles.Num() - 1)];
 
-                    // Проверка на случай, если GeneratingObtacle равен nullptr
+                 
                     if (!GeneratingObtacle)
                     {
                         UE_LOG(LogTemp, Error, TEXT("GeneratingObtacle is null before spawning"));
                         continue;
                     }
 
-                    // Попытка создать новый объект
+                    
                     AObtacle* SpawnedObtacle = GetWorld()->SpawnActor<AObtacle>(GeneratingObtacle->GetClass(), NewCoords,NewRotation, SpawnParams);
 
-                    // Проверка на случай, если SpawnedObtacle равен nullptr
                     if (!SpawnedObtacle)
                     {
                         UE_LOG(LogTemp, Error, TEXT("Failed to spawn AObtacle"));
                         continue;
                     }
 
-                    // Логирование имени GeneratingObtacle
+                   
                     UE_LOG(LogTemp, Warning, TEXT("Spawned Obtacle: %s"), *SpawnedObtacle->GetName());
 
                     flag = true;
 
-                    // Логирование длины ArrayOfObtacles после добавления нового препятствия
+                    
                     UE_LOG(LogTemp, Warning, TEXT("Length of ArrayOfObtacles after spawning: %d"), ArrayOfObtacles.Num());
                 }
                 else
@@ -188,7 +184,7 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
         }
     }
 
-    // Логирование длины ArrayOfObtacles после завершения генерации
+  
     UE_LOG(LogTemp, Warning, TEXT("Final length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
 }
 
@@ -196,7 +192,7 @@ void AGeneration::SpawnNewSegment(FVector SpawnLocation)
 {
     if (GameFieldSegments.Num() != 0)
     {
-        // 1% chance for first segment, 99% chance for second segment
+       
         AObtacle* SegmentToSpawn;
         SegmentToSpawn = GameFieldSegments[0];
         if (!SegmentToSpawn)
@@ -209,11 +205,10 @@ void AGeneration::SpawnNewSegment(FVector SpawnLocation)
 
         if (SpawnedSegment)
         {
-            // Update the end location of the last spawned segment
-            LastSpawnedSegmentEnd = SpawnLocation;  // Update the position of the last segment's end
+            LastSpawnedSegmentEnd = SpawnLocation;  
             UE_LOG(LogTemp, Error, TEXT("Spawned %d"), GameFieldSegments.Num());
             GenerateObtacles(SingleObtacles, countOfSingleObtacles);
-            GenerateObtacles(Structures, countOfStructures);
+          
             if (FoodClass)
             {
                 for (int i = 0; i <= CountOfGeneratingFood; i++)
@@ -271,11 +266,11 @@ void AGeneration::CheckSnakeLocation()
             MinIndex = i;
         }
 
-        // Выводим значение Distances[i] в лог
+        
         UE_LOG(LogTemp, Warning, TEXT("Distances[%d] = %f"), i, Distances[i]);
     }
 
-    // Проверяем найденный минимальный индекс
+   
     if (MinIndex != -1)
     {
         FVector NewSpawnLocation = LastSpawnedSegmentEnd;

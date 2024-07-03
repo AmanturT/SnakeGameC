@@ -67,7 +67,7 @@ public:
 	void GenerateFood(AFood* WhichFoodType);
 
 	AFood* GetRandomFoodType();
-	//Проверка не находится ли будущая еда в месте спавна змейки
+	
 	bool IsNewCoordsInSnakeSpawn(float pointX, float pointY, float sideLength);
 
 	UFUNCTION()
