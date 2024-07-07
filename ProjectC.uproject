@@ -11,17 +11,13 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"UMG",
-				"UMGEditor"
+				"AssetRegistry",
+				
 			]
 		}
 	],
-	"Plugins": [
-		{
-			"Name": "ModelingToolsEditorMode",
-			"Enabled": true,
-			"TargetAllowList": [
-				"Editor"
-			]
-		}
+	
+	"TargetPlatforms": [
+		"Windows"
 	]
 }

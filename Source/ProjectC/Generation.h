@@ -20,14 +20,13 @@ public:
 	AGeneration();
 
 	TArray<AObtacle*> SingleObtacles;
-	TArray<AObtacle*> Structures;
+
 	TArray<AObtacle*> GameFieldSegments;
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfSingleObtacles;
 
-	UPROPERTY(EditDefaultsOnly)
-	int countOfStructures;
+	
 
 
 	FVector LastSpawnedSegmentEnd;

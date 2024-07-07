@@ -55,28 +55,24 @@ void AGeneration::Tick(float DeltaTime)
 
 void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacle*>& OutClasses)
 {
-    
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-
-  
     IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
 
-    
-  
     FARFilter AssetFilter;
     FName FolderPathName = FName(*WhichFolder);
     AssetFilter.PackagePaths.Add(FolderPathName);
     AssetFilter.bRecursivePaths = true;
     AssetFilter.bRecursiveClasses = true;
 
-    
     TArray<FAssetData> AssetDataList;
     AssetRegistry.GetAssets(AssetFilter, AssetDataList);
-    UE_LOG(LogTemp, Warning, TEXT("Number of assets found: %d"), AssetDataList.Num());
-   
 
+    FString AssetCountMessage = FString::Printf(TEXT("Number of assets found: %d"), AssetDataList.Num());
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, AssetCountMessage);
+    }
 
- 
     for (const FAssetData& AssetData : AssetDataList)
     {
         if (UBlueprint* Blueprint = Cast<UBlueprint>(AssetData.GetAsset()))
@@ -87,22 +83,36 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
                 if (DefaultObject)
                 {
                     OutClasses.Add(DefaultObject);
-                    UE_LOG(LogTemp, Error, TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
+                    FString FoundClassMessage = FString::Printf(TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
+                    if (GEngine)
+                    {
+                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
+                    }
 
-                   
-                    UE_LOG(LogTemp, Warning, TEXT("OutClasses length: %d"), SingleObtacles.Num());
-                    
+                    FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), SingleObtacles.Num());
+                    if (GEngine)
+                    {
+                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
+                    }
                 }
                 else
                 {
-                    UE_LOG(LogTemp, Error, TEXT("DefaultObject cast failed for Blueprint: %s"), *Blueprint->GetName());
+                    FString DefaultObjectCastFailedMessage = FString::Printf(TEXT("DefaultObject cast failed for Blueprint: %s"), *Blueprint->GetName());
+                    if (GEngine)
+                    {
+                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DefaultObjectCastFailedMessage);
+                    }
                 }
             }
-            
         }
-        UE_LOG(LogTemp, Error, TEXT("Loop working!!!"));
+
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Loop working!!!"));
+        }
     }
 }
+
 
 void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 {
