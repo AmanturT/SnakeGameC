@@ -51,8 +51,6 @@ void AGeneration::Tick(float DeltaTime)
         
  }
    
-
-
 void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacle*>& OutClasses)
 {
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
@@ -75,34 +73,61 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
 
     for (const FAssetData& AssetData : AssetDataList)
     {
-        if (UBlueprint* Blueprint = Cast<UBlueprint>(AssetData.GetAsset()))
+        UObject* Asset = AssetData.GetAsset();
+        if (Asset && Asset->IsA<UBlueprint>())
         {
-            if (Blueprint->GeneratedClass)
+            UBlueprint* BlueprintFromFolder = Cast<UBlueprint>(Asset);
+            if (BlueprintFromFolder)
             {
-                AObtacle* DefaultObject = Cast<AObtacle>(Blueprint->GeneratedClass->GetDefaultObject());
-                if (DefaultObject)
+                if (BlueprintFromFolder->GeneratedClass)
                 {
-                    OutClasses.Add(DefaultObject);
-                    FString FoundClassMessage = FString::Printf(TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
-                    if (GEngine)
+                    AObtacle* DefaultObject = Cast<AObtacle>(BlueprintFromFolder->GeneratedClass->GetDefaultObject());
+                    if (DefaultObject)
                     {
-                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
-                    }
+                        OutClasses.Add(DefaultObject);
+                        FString FoundClassMessage = FString::Printf(TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
+                        if (GEngine)
+                        {
+                            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
+                        }
 
-                    FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), SingleObtacles.Num());
-                    if (GEngine)
+                        FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), OutClasses.Num());
+                        if (GEngine)
+                        {
+                            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
+                        }
+                    }
+                    else
                     {
-                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
+                        FString DefaultObjectCastFailedMessage = FString::Printf(TEXT("DefaultObject cast failed for Blueprint: %s"), *BlueprintFromFolder->GetName());
+                        if (GEngine)
+                        {
+                            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DefaultObjectCastFailedMessage);
+                        }
                     }
                 }
                 else
                 {
-                    FString DefaultObjectCastFailedMessage = FString::Printf(TEXT("DefaultObject cast failed for Blueprint: %s"), *Blueprint->GetName());
                     if (GEngine)
                     {
-                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DefaultObjectCastFailedMessage);
+                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("GeneratedClass is null"));
                     }
                 }
+            }
+            else
+            {
+                if (GEngine)
+                {
+                    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("BlueprintFromFolder is null"));
+                }
+            }
+        }
+        else
+        {
+            FString AssetTypeMessage = FString::Printf(TEXT("Asset is not a UBlueprint: %s"), *Asset->GetClass()->GetName());
+            if (GEngine)
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, AssetTypeMessage);
             }
         }
 
@@ -112,7 +137,6 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
         }
     }
 }
-
 
 void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
 {
