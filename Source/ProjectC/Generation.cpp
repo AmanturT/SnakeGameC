@@ -51,7 +51,7 @@ void AGeneration::Tick(float DeltaTime)
         
  }
    
-void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacle*>& OutClasses)
+void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<UObject*>& OutClasses)
 {
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
     IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
@@ -74,57 +74,24 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
     for (const FAssetData& AssetData : AssetDataList)
     {
         UObject* Asset = AssetData.GetAsset();
-        if (Asset && Asset->IsA<UBlueprint>())
+        if (Asset)
         {
-            UBlueprint* BlueprintFromFolder = Cast<UBlueprint>(Asset);
-            if (BlueprintFromFolder)
+            OutClasses.Add(Asset);
+            FString FoundClassMessage = FString::Printf(TEXT("Found Asset: %s"), *Asset->GetName());
+            if (GEngine)
             {
-                if (BlueprintFromFolder->GeneratedClass)
-                {
-                    AObtacle* DefaultObject = Cast<AObtacle>(BlueprintFromFolder->GeneratedClass->GetDefaultObject());
-                    if (DefaultObject)
-                    {
-                        OutClasses.Add(DefaultObject);
-                        FString FoundClassMessage = FString::Printf(TEXT("Found Blueprint Class: %s"), *DefaultObject->GetName());
-                        if (GEngine)
-                        {
-                            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
-                        }
-
-                        FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), OutClasses.Num());
-                        if (GEngine)
-                        {
-                            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
-                        }
-                    }
-                    else
-                    {
-                        FString DefaultObjectCastFailedMessage = FString::Printf(TEXT("DefaultObject cast failed for Blueprint: %s"), *BlueprintFromFolder->GetName());
-                        if (GEngine)
-                        {
-                            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, DefaultObjectCastFailedMessage);
-                        }
-                    }
-                }
-                else
-                {
-                    if (GEngine)
-                    {
-                        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("GeneratedClass is null"));
-                    }
-                }
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
             }
-            else
+
+            FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), OutClasses.Num());
+            if (GEngine)
             {
-                if (GEngine)
-                {
-                    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("BlueprintFromFolder is null"));
-                }
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
             }
         }
         else
         {
-            FString AssetTypeMessage = FString::Printf(TEXT("Asset is not a UBlueprint: %s"), *Asset->GetClass()->GetName());
+            FString AssetTypeMessage = FString::Printf(TEXT("Asset is null: %s"), *AssetData.AssetName.ToString());
             if (GEngine)
             {
                 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, AssetTypeMessage);
@@ -138,7 +105,7 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<AObtacl
     }
 }
 
-void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
+void AGeneration::GenerateObtacles(TArray<UObject*> ArrayOfObtacles, int count)
 {
     int iterator = 0;
     bool flag = false;
@@ -148,7 +115,7 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
     const TArray<AActor*> ActorsToIgnore;
     const float drawTime = 5.0f;
     FActorSpawnParameters SpawnParams;
-    AObtacle* GeneratingObtacle = nullptr;
+    UObject* GeneratingObtacle = nullptr;
     UWorld* World = GetWorld();
     FRotator NewRotation;
  
@@ -221,47 +188,59 @@ void AGeneration::GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count)
   
     UE_LOG(LogTemp, Warning, TEXT("Final length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
 }
-
 void AGeneration::SpawnNewSegment(FVector SpawnLocation)
 {
     if (GameFieldSegments.Num() != 0)
     {
-       
-        AObtacle* SegmentToSpawn;
-        SegmentToSpawn = GameFieldSegments[0];
+        // Получаем первый элемент из массива GameFieldSegments
+        UObject* SegmentToSpawn = GameFieldSegments[0];
         if (!SegmentToSpawn)
         {
-            UE_LOG(LogTemp, Error, TEXT("GeneratingObtacle is null before spawning"));
-            
+            UE_LOG(LogTemp, Error, TEXT("SegmentToSpawn is null before spawning"));
+            return;
         }
-        FActorSpawnParameters SpawnParams;
-        AObtacle* SpawnedSegment = GetWorld()->SpawnActor<AObtacle>(SegmentToSpawn->GetClass(), SpawnLocation, FRotator::ZeroRotator, SpawnParams);
 
-        if (SpawnedSegment)
+        // Проверяем, является ли объект блюпринтом
+        UBlueprint* Blueprint = Cast<UBlueprint>(SegmentToSpawn);
+        if (!Blueprint)
         {
-            LastSpawnedSegmentEnd = SpawnLocation;  
-            UE_LOG(LogTemp, Error, TEXT("Spawned %d"), GameFieldSegments.Num());
-            GenerateObtacles(SingleObtacles, countOfSingleObtacles);
-          
-            if (FoodClass)
-            {
-                for (int i = 0; i <= CountOfGeneratingFood; i++)
-                     {
-                        FoodClass->GenerateFood(FoodClass->GetRandomFoodType());
-                        UE_LOG(LogTemp, Error, TEXT("Begin Play loop is working"));
-                     }
-            }
-            else
-            {
-                UE_LOG(LogTemp, Error, TEXT("FoodClass is null"));
-            }
+            UE_LOG(LogTemp, Error, TEXT("SegmentToSpawn is not a Blueprint"));
+            return;
+        }
+
+        // Получаем сгенерированный класс блюпринта
+        UClass* BlueprintClass = Blueprint->GeneratedClass;
+        if (!BlueprintClass)
+        {
+            UE_LOG(LogTemp, Error, TEXT("BlueprintClass is null"));
+            return;
+        }
+
+        // Спауним актора на основе блюпринта
+        FActorSpawnParameters SpawnParams;
+        AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(BlueprintClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+
+        if (SpawnedActor)
+        {
+            FString SpawnedActorName = SpawnedActor->GetName();
+            UE_LOG(LogTemp, Log, TEXT("Spawned Actor: %s"), *SpawnedActorName);
+            LastSpawnedSegmentEnd = SpawnLocation;
+            // Продолжайте с дальнейшей обработкой, если необходимо
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to spawn actor from SegmentToSpawn"));
         }
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("Segments !> 1 %d"), GameFieldSegments.Num());
+        UE_LOG(LogTemp, Error, TEXT("GameFieldSegments is empty"));
     }
 }
+
+
+
+
 
 void AGeneration::CheckSnakeLocation()
 {
@@ -337,10 +316,7 @@ void AGeneration::FindSnake()
     {
         UE_LOG(LogTemp, Warning, TEXT("Snake found!"));
     }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Snake not found."));
-    }
+   
 }
 
 
