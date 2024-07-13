@@ -19,9 +19,9 @@ public:
 	// Sets default values for this actor's properties
 	AGeneration();
 
-	TArray<AObtacle*> SingleObtacles;
+	TArray<UObject*> SingleObtacles;
 
-	TArray<AObtacle*> GameFieldSegments;
+	TArray<UObject*> GameFieldSegments;
 
 	UPROPERTY(EditDefaultsOnly)
 	int countOfSingleObtacles;
@@ -47,9 +47,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	void GetActortFromFolder(const FString& WhichFolder,TArray<AObtacle*>& OutClasses);
+	void GetActortFromFolder(const FString& WhichFolder,TArray<UObject*>& OutClasses);
 
-	void GenerateObtacles(TArray<AObtacle*> ArrayOfObtacles, int count);
+	void GenerateObtacles(TArray<UObject*> ArrayOfObtacles, int count);
 
 	void SpawnNewSegment(FVector SpawnLocation);
 

@@ -62,7 +62,7 @@ void AObtacle::Interact(AActor* Interactor, bool bIsHead)
 				GenerationClass = Cast<AGeneration>(UGameplayStatics::GetActorOfClass(GetWorld(), AGeneration::StaticClass()));
 				if (GenerationClass)
 				{
-					this->Destroy();
+					this->DestroyObtacle();
 					GenerationClass->CheckSnakeLocation();
 					
 					UE_LOG(LogTemp, Error, TEXT("GENCLASS INS valid"));

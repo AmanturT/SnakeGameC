@@ -166,7 +166,7 @@ void AFood::GenerateFood(AFood* WhichFoodType)
 				}
 				else
 				{
-					
+					UE_LOG(LogTemp, Error, TEXT("Hit res ne null Food.cpp 169"));
 				}
 				iterator++;
 
@@ -174,7 +174,7 @@ void AFood::GenerateFood(AFood* WhichFoodType)
 	}
 	else
 	{
-	
+		UE_LOG(LogTemp, Error, TEXT("Gen Class is null Food.Cpp 177"));
 	}
 }
 
