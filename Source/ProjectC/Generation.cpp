@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+п»ї// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Generation.h"
@@ -77,25 +77,18 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<UObject
         if (Asset)
         {
             OutClasses.Add(Asset);
-            FString FoundClassMessage = FString::Printf(TEXT("Found Asset: %s"), *Asset->GetName());
-            if (GEngine)
-            {
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
-            }
-
-            FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), OutClasses.Num());
-            if (GEngine)
-            {
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
-            }
+            //FString FoundClassMessage = FString::Printf(TEXT("Found Asset: %s"), *Asset->GetName());
+            //if (GEngine)
+           // {
+            //    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FoundClassMessage);
         }
         else
         {
-            FString AssetTypeMessage = FString::Printf(TEXT("Asset is null: %s"), *AssetData.AssetName.ToString());
-            if (GEngine)
-            {
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, AssetTypeMessage);
-            }
+            //FString AssetTypeMessage = FString::Printf(TEXT("Asset is null: %s"), *AssetData.AssetName.ToString());
+            //if (GEngine)
+            //{
+            //    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, AssetTypeMessage);
+           /// }
         }
 
         if (GEngine)
@@ -103,6 +96,12 @@ void AGeneration::GetActortFromFolder(const FString& WhichFolder, TArray<UObject
             GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Loop working!!!"));
         }
     }
+    FString OutClassesLengthMessage = FString::Printf(TEXT("OutClasses length: %d"), OutClasses.Num());
+    if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, OutClassesLengthMessage);
+        }
+    
 }
 
 void AGeneration::GenerateObtacles(TArray<UObject*> ArrayOfObtacles, int count)
@@ -188,57 +187,37 @@ void AGeneration::GenerateObtacles(TArray<UObject*> ArrayOfObtacles, int count)
   
     UE_LOG(LogTemp, Warning, TEXT("Final length of ArrayOfObtacles: %d"), ArrayOfObtacles.Num());
 }
+
+
 void AGeneration::SpawnNewSegment(FVector SpawnLocation)
 {
     if (GameFieldSegments.Num() != 0)
     {
-        // Получаем первый элемент из массива GameFieldSegments
         UObject* SegmentToSpawn = GameFieldSegments[0];
+
         if (!SegmentToSpawn)
         {
             UE_LOG(LogTemp, Error, TEXT("SegmentToSpawn is null before spawning"));
             return;
         }
 
-        // Проверяем, является ли объект блюпринтом
-        UBlueprint* Blueprint = Cast<UBlueprint>(SegmentToSpawn);
-        if (!Blueprint)
+        UE_LOG(LogTemp, Log, TEXT("SegmentToSpawn class: %s"), *SegmentToSpawn->GetClass()->GetName());
+
+        // Check parent classes
+        UClass* CurrentClass = SegmentToSpawn->GetClass();
+        while (CurrentClass)
         {
-            UE_LOG(LogTemp, Error, TEXT("SegmentToSpawn is not a Blueprint"));
-            return;
+            UE_LOG(LogTemp, Log, TEXT("Class: %s"), *CurrentClass->GetName());
+            CurrentClass = CurrentClass->GetSuperClass();
         }
 
-        // Получаем сгенерированный класс блюпринта
-        UClass* BlueprintClass = Blueprint->GeneratedClass;
-        if (!BlueprintClass)
-        {
-            UE_LOG(LogTemp, Error, TEXT("BlueprintClass is null"));
-            return;
-        }
-
-        // Спауним актора на основе блюпринта
-        FActorSpawnParameters SpawnParams;
-        AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(BlueprintClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
-
-        if (SpawnedActor)
-        {
-            FString SpawnedActorName = SpawnedActor->GetName();
-            UE_LOG(LogTemp, Log, TEXT("Spawned Actor: %s"), *SpawnedActorName);
-            LastSpawnedSegmentEnd = SpawnLocation;
-            // Продолжайте с дальнейшей обработкой, если необходимо
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("Failed to spawn actor from SegmentToSpawn"));
-        }
+        UE_LOG(LogTemp, Error, TEXT("SegmentToSpawn is not an AObtacle or its child class"));
     }
     else
     {
         UE_LOG(LogTemp, Error, TEXT("GameFieldSegments is empty"));
     }
 }
-
-
 
 
 
@@ -270,7 +249,7 @@ void AGeneration::CheckSnakeLocation()
     float MinDistance = FLT_MAX;
     int MinIndex = -1;
 
-    // Находим минимальное значение и его индекс
+    // РќР°С…РѕРґРёРј РјРёРЅРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё РµРіРѕ РёРЅРґРµРєСЃ
     for (int i = 0; i < 4; i++)
     {
         if (Distances[i] < MinDistance)
